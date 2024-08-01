@@ -1,6 +1,15 @@
+<?php
+include('../../php-require/phpqrcode.php');
+require('getSettings.php');
+require('../../php-require/mysql-elfollon.php');
+$year = getEventYear();
+$location = getEventLocation();
+$hour = getEventTime();
+?>
+
 <html>
 <head>
-<title>Cena Peña El Follón 2025</title>
+<title>Cena Peña El Follón <?php echo $year; ?></title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <style>
@@ -15,14 +24,11 @@
     <div class="col-xs-12">
 <h1>Cena Peña "El Follón"</h1>
 <p>
-<b>Fecha:</b> 26 de julio de 2025<br>
-<b>Lugar:</b> IES Ega, San Adrián
+<b>Fecha:</b> 26 de julio de <?php echo $year; ?><br>
+<b>Lugar:</b> <?php echo $location; ?>
 </p>
 
 <?php
-include('../../php-require/phpqrcode.php');
-require('../../php-require/mysql-elfollon.php');
-
 $BASE_URL = "https://" . $_SERVER['SERVER_NAME'];
 function getAssignedGroup($conn) {
   $result = $conn->query("SELECT gid FROM cena_invitaciones WHERE uid LIKE '%" . $_SESSION["uid"] . "%'");
@@ -102,14 +108,15 @@ if (isset($_GET['crear'])) {
 }
 ?>
 
-Cada socio puede usar su invitación para unirse a un grupo.<br>
-A la hora de la cena, cada grupo tendrá un lugar asignado en una mesa, sin necesidad de hacer cola ni llegar pronto.<br>
-Una vez un socio forma parte de un grupo no tiene que hacer nada más, el mapa (con cada lugar asignado) aparecerá aquí al comienzo de la cena.<br>
+¿Estás cansado de esperar en la puerta para asegurarte de que os podéis sentar todos juntos? ¿Echas de menos ir a la cena acompañando a la charanga?<br>
+Gracias a este sistema de reservas cada socio puede usar su invitación para unirse a un grupo.<br>
+A la hora de la cena, cada grupo tendrá un lugar asignado en una mesa, sin necesidad de hacer cola ni llegar pronto. Además, así ayudas a que no se reserven sitios de más y que finalmente no se utilicen.<br>
+Una vez un socio forma parte de un grupo no tiene que hacer nada más, el mapa (con cada lugar asignado) aparecerá aquí justo antes de la cena.<br>
 <?php
 $gid = getAssignedGroup($conn);
 if ($gid) {
   $gnum = getGroupNumber($conn, $gid);
-  echo "Actualmente formas parte del grupo " . $gnum . ". <a href=\"" . $BASE_URL . "/?abandonar\" class=\"btn btn-primary\">Abandonar</a><br>";
+  echo "Actualmente formas parte del <b>GRUPO #" . $gnum . "</b>. <a href=\"" . $BASE_URL . "/?abandonar\" class=\"btn btn-primary\">Abandonar grupo</a><br>";
   $nmm = getGroupSize($conn, $gid);
   if ($nmm > 1) {
     echo "En este momento, en el grupo sois " . getGroupSize($conn, $gid) . " personas en total.<br>";
@@ -125,7 +132,7 @@ if ($gid) {
 ?>
 Los socios pueden unirse a grupos hasta 15 minutos antes del comienzo de la cena, momento en el que se asignarán los asientos.<br>
 
-A partir de las 21:00h escanea de nuevo tu QR para ver aquí la asignación final.
+A partir de las <?php echo getMinutesBeforeEventTime(15); ?>h escanea de nuevo tu QR para ver aquí la asignación final.
     </div>
   </div>
 </div>
