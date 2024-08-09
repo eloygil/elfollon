@@ -48,15 +48,21 @@ function getGroupSize($conn, $gid) {
 }
 
 function getGroupNewId($conn) {
-  $result = $conn ->query("SELECT id FROM `cena_grupos` ORDER BY id ASC");
-  $idx = 1;
-  while ($id = $result->fetch_row()) {
-    if ($idx != $id[0]) {
-      return $idx;
+  $max = $conn->query("SELECT MAX(id) FROM `cena_grupos`")->fetch_row()[0];
+  $count  = $conn->query("SELECT COUNT(*) FROM `cena_grupos`")->fetch_row()[0];
+  if ($max == $count) {
+    return $max + 1;
+  } else {
+    $result = $conn->query("SELECT id FROM `cena_grupos` ORDER BY id ASC");
+    $idx = 1;
+    while ($id = $result->fetch_row()) {
+      if ($idx != $id[0]) {
+        return $idx;
+      }
+      $idx = $idx + 1;
     }
-    $idx = $idx + 1;
+    return $idx;
   }
-  return $idx;
 }
 
 function setGroup($conn, $gid) {
@@ -73,7 +79,9 @@ function createGroup($conn) {
     $conn->commit();
   } catch (mysqli_sql_exception $exception) {
     $conn->rollback();
+    echo "<b style=\"color: red;\">ERROR</b>: Inténtelo de nuevo más adelante.";
     throw $exception;
+    exit(1);
   }
 }
 
@@ -111,7 +119,7 @@ if (!isset($_SESSION["uid"]) and isset($join_gid)) {
   echo "Recuerda que debes usar el mismo dispositivo, navegador y sesión (evita usar el modo incógnito)";
   exit(1);
 } elseif (isset($_SESSION["uid"]) and isset($join_gid)) {
-  if ($join_gid == getAssignedGroup($conn)) {
+  if ($join_gid != getAssignedGroup($conn)) {
     leaveGroup($conn);
   }
   setGroup($conn, $join_gid);
