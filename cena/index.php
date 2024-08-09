@@ -24,7 +24,7 @@ $hour = getEventTime();
     <div class="col-xs-12">
 <h1>Cena Peña "El Follón"</h1>
 <p>
-<b>Fecha:</b> 26 de julio de <?php echo $year; ?><br>
+<b>Fecha:</b> 26 de julio de <?php echo $year; ?> (<?php echo getEventTime(); ?>h)<br>
 <b>Lugar:</b> <?php echo $location; ?>
 </p>
 
