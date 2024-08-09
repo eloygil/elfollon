@@ -47,14 +47,34 @@ function getGroupSize($conn, $gid) {
   return $result->fetch_row()[0];
 }
 
+function getGroupNewId($conn) {
+  $result = $conn ->query("SELECT id FROM `cena_grupos` ORDER BY id ASC");
+  $idx = 1;
+  while ($id = $result->fetch_row()) {
+    if ($idx != $id[0]) {
+      return $idx;
+    }
+    $idx = $idx + 1;
+  }
+  return $idx;
+}
+
 function setGroup($conn, $gid) {
   $conn->query("UPDATE cena_invitaciones SET gid = '" . $gid . "' WHERE uid LIKE '%" . $_SESSION["uid"] . "%'");
 }
 
 function createGroup($conn) {
   $new_gid = hash('sha1', 'Cena-El-Follon-' . $_SESSION["uid"] . '-' . date("Y-m-d H:m:s"));
-  $conn->query("INSERT INTO cena_grupos (gid) VALUES ('" . $new_gid . "')");
-  $conn->query("UPDATE cena_invitaciones SET gid = '" . $new_gid . "' WHERE uid LIKE '%" . $_SESSION["uid"] . "%'");
+  $conn->begin_transaction();
+  try {
+    $id = getGroupNewId($conn);
+    $conn->query("INSERT INTO cena_grupos (gid, id) VALUES ('" . $new_gid . "', " . $id . ")");
+    $conn->query("UPDATE cena_invitaciones SET gid = '" . $new_gid . "' WHERE uid LIKE '%" . $_SESSION["uid"] . "%'");
+    $conn->commit();
+  } catch (mysqli_sql_exception $exception) {
+    $conn->rollback();
+    throw $exception;
+  }
 }
 
 function leaveGroup($conn) {
@@ -138,3 +158,4 @@ A partir de las <?php echo getMinutesBeforeEventTime(15); ?>h escanea de nuevo t
 </div>
 </body>
 </html>
+<?php $conn->close(); ?>
