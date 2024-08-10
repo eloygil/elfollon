@@ -2,14 +2,11 @@
 include('../../php-require/phpqrcode.php');
 require('getSettings.php');
 require('../../php-require/mysql-elfollon.php');
-$year = getEventYear();
-$location = getEventLocation();
-$hour = getEventTime();
 ?>
 
 <html>
 <head>
-<title>Cena Peña El Follón <?php echo $year; ?></title>
+<title>Cena Peña El Follón <?php echo getEventYear(); ?></title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <style>
@@ -24,8 +21,8 @@ $hour = getEventTime();
     <div class="col-xs-12">
 <h1>Cena Peña "El Follón"</h1>
 <p>
-<b>Fecha:</b> 26 de julio de <?php echo $year; ?> (<?php echo getEventTime(); ?>h)<br>
-<b>Lugar:</b> <?php echo $location; ?>
+<b>Fecha:</b> <?php echo getEventDay(); ?> de <?php echo getEventMonthText(); ?> de <?php echo getEventYear(); ?> (<?php echo getPrintableEventTime(); ?>h.)<br>
+<b>Lugar:</b> <?php echo getEventLocation(); ?>
 </p>
 
 <?php
@@ -134,17 +131,29 @@ if (isset($_GET['crear'])) {
      createGroup($conn);
   }
 }
-?>
 
-¿Estás cansado de esperar en la puerta para asegurarte de que os podéis sentar todos juntos? ¿Echas de menos ir a la cena acompañando a la charanga?<br>
-Gracias a este sistema de reservas cada socio puede usar su invitación para unirse a un grupo.<br>
-A la hora de la cena, cada grupo tendrá un lugar asignado en una mesa, sin necesidad de hacer cola ni llegar pronto. Además, así ayudas a que no se reserven sitios de más y que finalmente no se utilicen.<br>
-Una vez un socio forma parte de un grupo no tiene que hacer nada más, el mapa (con cada lugar asignado) aparecerá aquí justo antes de la cena.<br>
-<?php
 $gid = getAssignedGroup($conn);
+if (!isFrozen()) {
+  echo "¿Estás cansado de esperar en la puerta para asegurarte de que os podéis sentar todos juntos? ¿Echas de menos ir a la cena acompañando a la charanga?<br>";
+  echo "Gracias a este sistema de reservas cada socio puede usar su invitación para unirse a un grupo.<br>";
+  echo "A la hora de la cena, cada grupo tendrá un lugar asignado en una mesa, sin necesidad de hacer cola ni llegar pronto. Además, así ayudas a que no se reserven sitios de más y que finalmente no se utilicen.<br>";
+  echo "Una vez un socio forma parte de un grupo no tiene que hacer nada más, el mapa (con cada lugar asignado) aparecerá aquí justo antes de la cena.<br>";
+} elseif ($gid == null) {
+  echo "No formas parte de ningún grupo de reserva y el plazo está cerrado.<br>";
+  echo "Por favor, dirígete hacia las mesas destinadas a los socios que acuden sin reserva, allí podréis sentaros libremente como en años anteriores.";
+  exit(0);
+} elseif (file_exists(dirname(__FILE__) ."/img/grupo" . $gid . ".png")) {
+  echo "<img src=\"img/grupo" . $gid . ".png\" alt=\"Asignación reserva grupo " . $gid . "\">";
+  exit(0);
+} else {
+  echo "Las reservas están siendo asignadas, vuelve a comprobarlo escaneando el QR de tu invitación más adelante.";
+  exit(0);
+}
+
 if ($gid) {
   $gnum = getGroupNumber($conn, $gid);
-  echo "Actualmente formas parte del <b>GRUPO #" . $gnum . "</b>. <a href=\"" . $BASE_URL . "/?abandonar\" class=\"btn btn-primary\">Abandonar grupo</a><br>";
+  echo "Actualmente formas parte del <b>GRUPO #" . $gnum . "</b>.";
+  echo " <a href=\"" . $BASE_URL . "/?abandonar\" class=\"btn btn-primary\">Abandonar grupo</a><br>";
   $nmm = getGroupSize($conn, $gid);
   if ($nmm > 1) {
     echo "En este momento, en el grupo sois " . getGroupSize($conn, $gid) . " personas en total.<br>";
@@ -154,13 +163,12 @@ if ($gid) {
   $url = $BASE_URL . "/?unirse=" . $gid;
   echo "Puedes invitar a tu grupo a otros socios con invitación que ya hayan escaneado su QR previamente compartiendo con ellos el siguiente enlace: <a href=\"" . $url . "\">" . $url . "</a></br>";
 } else {
-  echo "No formas parte de ningún grupo. Puedes unirte a uno existente a través de un enlace o crear uno nuevo. ";
+  echo "Actualmente no formas parte de ningún grupo.<br> Ahora que has escaneado tu invitación, puedes unirte a uno existente a través de un enlace o crear uno nuevo. ";
   echo "<a href=\"" . $BASE_URL . "/?crear\" class=\"btn btn-primary\">Crear nuevo grupo</a><br>";
 }
 ?>
-Los socios pueden unirse a grupos hasta 15 minutos antes del comienzo de la cena, momento en el que se asignarán los asientos.<br>
-
-A partir de las <?php echo getMinutesBeforeEventTime(15); ?>h escanea de nuevo tu QR para ver aquí la asignación final.
+Los socios pueden unirse a grupos hasta <?php echo getLimitMinutes(); ?> minutos antes del comienzo de la cena, momento en el que se asignarán los asientos.<br>
+A partir de las <?php echo getMinutesBeforeTime(getPrintableEventTime(), getLimitMinutes()); ?>h escanea de nuevo tu QR para ver aquí la asignación final.
     </div>
   </div>
 </div>
