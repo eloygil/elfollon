@@ -24,7 +24,7 @@ def getMySQLCredentials():
         for line in f.readlines():
             for key in keys:
                 if '["mysql_' + key + '"] =' in line:
-                    creds['mysql_' + key] = line.split("=")[-1].strip().replace("'","").replace(";","")
+                    creds[key] = line.split("=")[-1].strip().replace("'","").replace(";","")
     return creds
 
 def getMap(n_std_tables=4, std_size=80):
@@ -54,29 +54,25 @@ def getPreference(mapa, n_seats):
 def getAllocation(cursor, mapa, gid, n_seats):
     # Assigns the given number of seats to the given group, by preference
     preference = getPreference(mapa, n_seats)
-    done = False
-    i = 0
-    while True:
-        # There MUST be slots for all members, otherwise this function may turn into an infinite loop
+    for i in range(len(preference)):
+        # We assume there MUST be slots for all members, if not they'll stay unassigned
         t = mapa[preference[i]]
         if t.getAvailable() >= n_seats:
             seat = t.setReservation(n_seats)
             # Update MySQL database
             cursor.execute("UPDATE `cena_grupos` SET mesa=%s, asiento=%s WHERE gid = %s", (preference[i], seat, gid))
             return preference[i]
-        i += 1
 
 creds = getMySQLCredentials()
-conn = mysql.connector.connect(user=creds['mysql_username'], password=creds['mysql_password'], database=creds['mysql_database'])
+conn = mysql.connector.connect(user=creds['username'], password=creds['password'], database=creds['database'])
 cursor = conn.cursor()
-mapa = getMap(4, 4)  # Smaller tables while testing
+mapa = getMap(4, 80)
 
 cursor.execute("SELECT gid, COUNT(*) as count FROM `cena_invitaciones` WHERE 1 GROUP BY gid ORDER BY count DESC")
 rows = cursor.fetchall()
 for row in rows:
     gid, n = row
     a = getAllocation(cursor, mapa, gid, n)
-    print(gid, n)
-    print(f"Sitting in table {a}")
+    print(f"Group #{n} ({gid}) has been assigned to table {a}")
 
 conn.commit()
