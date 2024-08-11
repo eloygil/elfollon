@@ -20,10 +20,8 @@ require('../../php-require/mysql-elfollon.php');
   <div class="row">
     <div class="col-xs-12">
 <h1>Cena Peña "El Follón"</h1>
-<p>
-<b>Fecha:</b> <?php echo getEventDay(); ?> de <?php echo getEventMonthText(); ?> de <?php echo getEventYear(); ?> (<?php echo getPrintableEventTime(); ?>h.)<br>
-<b>Lugar:</b> <?php echo getEventLocation(); ?>
-</p>
+<b>Fecha</b>: <?php echo getEventDay(); ?> de <?php echo getEventMonthText(); ?> de <?php echo getEventYear(); ?> (<?php echo getPrintableEventTime(); ?>h.)<br>
+<b>Lugar</b>: <?php echo getEventLocation(); ?><br>
 
 <?php
 $BASE_URL = "https://" . $_SERVER['SERVER_NAME'];
@@ -42,6 +40,22 @@ function getGroupNumber($conn, $gid) {
 function getGroupSize($conn, $gid) {
   $result = $conn->query("SELECT COUNT(*) FROM `cena_invitaciones` WHERE gid = '" . $gid . "'");
   return $result->fetch_row()[0];
+}
+
+function getGroupTable($conn, $gid) {
+  $result = $conn->query("SELECT mesa FROM `cena_grupos` WHERE gid = '" . $gid . "'");
+  $table = $result->fetch_row()[0];
+  return $table;
+}
+
+function getGroupTableSeats($conn, $gid) {
+  $seat_n = getGroupSize($conn, $gid);
+  $result = $conn->query("SELECT asiento FROM `cena_grupos` WHERE gid = '" . $gid . "'");
+  $first_seat = $result->fetch_row()[0];
+  if ($first_seat == null) {
+    return null;
+  }
+  return range($first_seat, $first_seat + ($seat_n - 1));
 }
 
 function getGroupNewId($conn) {
@@ -133,17 +147,24 @@ if (isset($_GET['crear'])) {
 }
 
 $gid = getAssignedGroup($conn);
+$gnum = getGroupNumber($conn, $gid);
+$nmm = getGroupSize($conn, $gid);
+$gt = getGroupTable($conn, $gid);
+$gts = getGroupTableSeats($conn, $gid);
 if (!isFrozen()) {
   echo "¿Estás cansado de esperar en la puerta para asegurarte de que os podéis sentar todos juntos? ¿Echas de menos ir a la cena acompañando a la charanga?<br>";
   echo "Gracias a este sistema de reservas cada socio puede usar su invitación para unirse a un grupo.<br>";
   echo "A la hora de la cena, cada grupo tendrá un lugar asignado en una mesa, sin necesidad de hacer cola ni llegar pronto. Además, así ayudas a que no se reserven sitios de más y que finalmente no se utilicen.<br>";
-  echo "Una vez un socio forma parte de un grupo no tiene que hacer nada más, el mapa (con cada lugar asignado) aparecerá aquí justo antes de la cena.<br>";
+  echo "Una vez un socio forma parte de un grupo no tiene que hacer nada más, el mapa (con cada lugar asignado) aparecerá aquí justo antes empezar.<br>";
 } elseif ($gid == null) {
-  echo "No formas parte de ningún grupo de reserva y el plazo está cerrado.<br>";
+  echo "No formas parte de ningún grupo de reserva y el plazo está ya cerrado.<br>";
   echo "Por favor, dirígete hacia las mesas destinadas a los socios que acuden sin reserva, allí podréis sentaros libremente como en años anteriores.";
   exit(0);
-} elseif (file_exists(dirname(__FILE__) ."/img/grupo" . $gid . ".png")) {
-  echo "<img src=\"img/grupo" . $gid . ".png\" alt=\"Asignación reserva grupo " . $gid . "\">";
+} elseif ($gt != null and $gts != null) {
+  echo "<b>Grupo</b>: #" . $gnum . "<br>";
+  echo "<b>Mesa</b>: " . $gt . "<br>";
+  echo "<b>Asiento"; if ($nmm > 1) { echo "s"; }echo "</b>: " . $gts[0];
+  if ($nmm > 1) { echo "-" . $gts[$nmm-1]; }
   exit(0);
 } else {
   echo "Las reservas están siendo asignadas, vuelve a comprobarlo escaneando el QR de tu invitación más adelante.";
@@ -151,10 +172,8 @@ if (!isFrozen()) {
 }
 
 if ($gid) {
-  $gnum = getGroupNumber($conn, $gid);
   echo "Actualmente formas parte del <b>GRUPO #" . $gnum . "</b>.";
   echo " <a href=\"" . $BASE_URL . "/?abandonar\" class=\"btn btn-primary\">Abandonar grupo</a><br>";
-  $nmm = getGroupSize($conn, $gid);
   if ($nmm > 1) {
     echo "En este momento, en el grupo sois " . getGroupSize($conn, $gid) . " personas en total.<br>";
   } else {

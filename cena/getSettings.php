@@ -1,14 +1,7 @@
 <?php
-$day_event = "10";
-#$day_event = "26";
-$month_event = "8";
-#$month_event = "7";
-$year_event = "2024";
-#$year_event = "2025";
-#$hour_event = 21;  # CEST time (España Peninsular)
-$hour_event = 4;
-$minute_event = 46;
-#$minute_event = 30; # original
+# Next is 26/07/2025 21:30 CEST time (España Peninsular)
+$date = ['11', '8', '2024', 18, 15];
+[$day_event, $month_event, $year_event, $hour_event, $minute_event] = $date;
 
 function getLimitMinutes() {
   # This is the amount of time before the event starts when the DB stops
