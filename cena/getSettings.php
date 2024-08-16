@@ -2,11 +2,13 @@
 # Next is 26/07/2025 21:30 CEST time (España Peninsular)
 $date = ['26', '7', '2025', 21, 30];
 [$day_event, $month_event, $year_event, $hour_event, $minute_event] = $date;
+$limitMinutes = 15;
 
 function getLimitMinutes() {
   # This is the amount of time before the event starts when the DB stops
   # accepting changes so seats can be assigned
-  return 15;
+  global $limitMinutes;
+  return $limitMinutes;
 }
 
 function getEventDay() {

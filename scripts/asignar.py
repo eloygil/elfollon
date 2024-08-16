@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from datetime import datetime
+from datetime import datetime, timedelta
 import mysql.connector
 import sys, time
 
@@ -29,9 +29,16 @@ def getEventDate(cfg='../cena/getSettings.php'):
     print(f'Event date cannot be parsed from {cfg}')
     sys.exit(1)
 
+def getEventLimit(cfg='../cena/getSettings.php'):
+    # The purpose of this function is reading the event time limit from the PHP config file
+    f = open(cfg, 'r')
+    for line in f.readlines():
+        if '$limitMinutes = ' in line:
+            return int(line.replace('$limitMinutes = ','').replace(';','').strip())
+
 def getGreenlight():
     # It will exit in most cases, but let the execution happen if it is time to assign seats
-    dt = getEventDate()
+    dt = getEventDate() - timedelta(minutes=getEventLimit())  # The calculation happens some minutes before the event
     now = datetime.now()
     if now.year != dt.year or now.month != dt.month or now.day != dt.day or now.hour != dt.hour or now.minute != dt.minute:
         exit(0)
