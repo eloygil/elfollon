@@ -13,6 +13,28 @@ require('../../php-require/mysql-elfollon.php');
 .text-responsive {
   font-size: calc(100% + 1vw + 1vh);
 }
+.btn-whatsapp {
+  background-color: #25d366;
+  opacity: .95;
+  min-width: 120px;
+  box-sizing: border-box;
+  transition: opacity 0.2s ease-in, top 0.2s ease-in;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  #font-size: 11px;
+  #height: 32px;
+  #line-height: 32px;
+  #margin-right: 8px;
+  #padding: 0 10px;
+  position: relative;
+  text-align: center;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.btn-whatsapp-label {
+  color: #fff;
+}
 </style>
 </head>
 <body>
@@ -138,6 +160,7 @@ if (!isset($_SESSION["uid"]) and isset($join_gid)) {
 
 if (isset($_GET['abandonar'])) {
   leaveGroup($conn);
+  header('Location: /');
 }
 
 if (isset($_GET['crear'])) {
@@ -155,7 +178,7 @@ if (!isFrozen()) {
   echo "¿Estás cansado de esperar en la puerta para asegurarte de que os podéis sentar todos juntos? ¿Echas de menos ir a la cena acompañando a la charanga?<br>";
   echo "Gracias a este sistema de reservas cada socio puede usar su invitación para unirse a un grupo.<br>";
   echo "A la hora de la cena, cada grupo tendrá un lugar asignado en una mesa, sin necesidad de hacer cola ni llegar pronto. Además, así ayudas a que no se reserven sitios de más y que finalmente no se utilicen.<br>";
-  echo "Una vez un socio forma parte de un grupo no tiene que hacer nada más, el mapa (con cada lugar asignado) aparecerá aquí justo antes empezar.<br>";
+  echo "Una vez un socio forma parte de un grupo no tiene que hacer nada más, el mapa (con cada lugar asignado) aparecerá aquí justo antes de la cena.<br>";
 } elseif ($gid == null) {
   echo "No formas parte de ningún grupo de reserva y el plazo está ya cerrado.<br>";
   echo "Por favor, dirígete hacia las mesas destinadas a los socios que acuden sin reserva, allí podréis sentaros libremente como en años anteriores.";
@@ -180,7 +203,18 @@ if ($gid) {
     echo "Eres el único miembro de este grupo.<br>";
   }
   $url = $BASE_URL . "/?unirse=" . $gid;
-  echo "Puedes invitar a tu grupo a otros socios con invitación que ya hayan escaneado su QR previamente compartiendo con ellos el siguiente enlace: <a href=\"" . $url . "\">" . $url . "</a></br>";
+  echo "Puedes invitar a tu grupo a otros socios compartiendo con ellos el siguiente enlace:";
+  echo "<a href=\"" . $url . "\"><div id=\"TextoACopiar\">" . $url . "</div></a> ";
+  ?>
+  <button id="BotonCopiar" class="btn btn-primary" onclick="copyOnClick()">Copiar enlace</button>
+  <script type="text/javascript">
+    function copyOnClick() {
+      var codigoACopiar = document.getElementById('TextoACopiar');
+      navigator.clipboard.writeText(codigoACopiar.innerHTML)
+    }
+  </script>
+  <?php
+  include("getWhatsapp.php");
 } else {
   echo "Actualmente no formas parte de ningún grupo.<br> Ahora que has escaneado tu invitación, puedes unirte a uno existente a través de un enlace o crear uno nuevo. ";
   echo "<a href=\"" . $BASE_URL . "/?crear\" class=\"btn btn-primary\">Crear nuevo grupo</a><br>";
