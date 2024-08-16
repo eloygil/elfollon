@@ -140,6 +140,7 @@ if ($result->num_rows != 1) {
 } else {
   $_SESSION["uid"] = $uid;
   $conn->query("UPDATE cena_invitaciones SET last_access = NOW() WHERE uid LIKE '%" . $uid . "%'");
+  echo "<b>Invitación</b>: 0x" . substr($uid, -6) . "<br>";
 }
 
 if (!isset($_SESSION["uid"]) and isset($join_gid)) {
@@ -151,6 +152,7 @@ if (!isset($_SESSION["uid"]) and isset($join_gid)) {
     leaveGroup($conn);
   }
   setGroup($conn, $join_gid);
+  header('Location: /');
 }
 
 if (isset($_GET['abandonar'])) {
@@ -164,6 +166,7 @@ if ((isset($_GET['crear'])) and (!isFrozen())) {
   if (is_null(getAssignedGroup($conn))) {
      createGroup($conn);
   }
+  header('Location: /');
 }
 
 $gid = getAssignedGroup($conn);
