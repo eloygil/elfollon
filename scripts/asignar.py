@@ -1,5 +1,7 @@
 #!/usr/bin/python3
+from datetime import datetime
 import mysql.connector
+import sys, time
 
 class table(object):
     def __init__(self, n_seats):
@@ -13,6 +15,27 @@ class table(object):
         seat = self._used + 1
         self._used += number
         return seat
+
+def getEventDate(cfg='../cena/getSettings.php'):
+    # The purpose of this function is reading the event date from the PHP config file
+    date = []
+    f = open(cfg, 'r')
+    for line in f.readlines():
+        if '$date =' in line:
+            for symbol in ["$date = ", "]", "[", ";", "'", " "]:
+                line = line.replace(symbol, "")
+            date = line.strip().split(',')
+            return datetime.strptime('-'.join([date[2], date[1], date[0]]) + ' ' + ':'.join([date[3], date[4]]), "%Y-%m-%d %H:%M")
+    print(f'Event date cannot be parsed from {cfg}')
+    sys.exit(1)
+
+def getGreenlight():
+    # It will exit in most cases, but let the execution happen if it is time to assign seats
+    dt = getEventDate()
+    now = datetime.now()
+    if now.year != dt.year or now.month != dt.month or now.day != dt.day or now.hour != dt.hour or now.minute != dt.minute:
+        exit(0)
+    time.sleep(2)
 
 def getMySQLCredentials():
     # The purpose of this function is avoiding yet another set of credentials hardcoded in plaintext
@@ -32,7 +55,7 @@ def getMap(n_std_tables=4, std_size=80):
     dimensions = {}
     for i in range(1, n_std_tables+1):
         dimensions[i] = table(std_size) # All standard tables have, at least, this number of (free) seats
-    # If a pre-reserved, custom, table must be defined it will go here
+    # If a pre-reserved, custom, table must be defined it will go here #
     return dimensions
 
 def getPreference(mapa, n_seats):
@@ -63,6 +86,7 @@ def getAllocation(cursor, mapa, gid, n_seats):
             cursor.execute("UPDATE `cena_grupos` SET mesa=%s, asiento=%s WHERE gid = %s", (preference[i], seat, gid))
             return preference[i]
 
+getGreenlight()
 creds = getMySQLCredentials()
 conn = mysql.connector.connect(user=creds['username'], password=creds['password'], database=creds['database'])
 cursor = conn.cursor()

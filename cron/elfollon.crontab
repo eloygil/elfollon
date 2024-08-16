@@ -1,0 +1,2 @@
+# elfollon.com scripts
+* *     * * *   root    cd /root/scripts; python3 /var/www/elfollon/scripts/asignar.py > /root/scripts/logs/elfollon-asignar.log 2>&1

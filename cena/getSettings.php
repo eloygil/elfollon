@@ -1,6 +1,6 @@
 <?php
 # Next is 26/07/2025 21:30 CEST time (España Peninsular)
-$date = ['16', '8', '2024', 16, 30];
+$date = ['26', '7', '2025', 21, 30];
 [$day_event, $month_event, $year_event, $hour_event, $minute_event] = $date;
 
 function getLimitMinutes() {
