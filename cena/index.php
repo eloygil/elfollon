@@ -154,11 +154,13 @@ if (!isset($_SESSION["uid"]) and isset($join_gid)) {
 }
 
 if (isset($_GET['abandonar'])) {
-  leaveGroup($conn);
+  if (!isFrozen()) {
+    leaveGroup($conn);
+  }
   header('Location: /');
 }
 
-if (isset($_GET['crear'])) {
+if ((isset($_GET['crear'])) and (!isFrozen())) {
   if (is_null(getAssignedGroup($conn))) {
      createGroup($conn);
   }
@@ -191,7 +193,9 @@ if (!isFrozen()) {
 
 if ($gid) {
   echo "Actualmente formas parte del <b>GRUPO #" . $gnum . "</b>.";
-  echo " <a href=\"" . $BASE_URL . "/?abandonar\" class=\"btn btn-primary\">Abandonar grupo</a><br>";
+  if (!isFrozen()) {
+    echo " <a href=\"" . $BASE_URL . "/?abandonar\" class=\"btn btn-primary\">Abandonar grupo</a><br>";
+  }
   if ($nmm > 1) {
     echo "En este momento, en el grupo sois " . getGroupSize($conn, $gid) . " personas en total.<br>";
   } else {
