@@ -1,4 +1,5 @@
 <?php
+$DEBUG = False;
 include('../../php-require/phpqrcode.php');
 require('getSettings.php');
 require('../../php-require/mysql-elfollon.php');
@@ -166,15 +167,18 @@ session_start();
 # Sanitize inputs and guarantee valid data is received
 $uid = preg_replace('/[^-a-zA-Z0-9_]/', '', filter_input(INPUT_GET, 'invitacion', FILTER_SANITIZE_URL));
 if (strlen($uid) != $hashSize) {
+  if ($DEBUG) { echo "DEBUG - Wrong invitation hash length, ignoring<br>"; }
   unset($uid);
 }
 $join_gid = preg_replace('/[^-a-zA-Z0-9_]/', '', filter_input(INPUT_GET, 'unirse', FILTER_SANITIZE_URL));
 if (strlen($join_gid) != $hashSize) {
+  if ($DEBUG) { echo "DEBUG - Wrong group hash length, ignoring<br>"; }
   unset($join_gid);
 }
 if (!isset($uid)) {
   $uid = $_SESSION["uid"];
 }
+
 $stmt = $conn->prepare("SELECT uid, gid FROM cena_invitaciones WHERE uid=?");
 $stmt->bind_param("s", $uid);
 $stmt->execute();
@@ -194,9 +198,16 @@ if ($result->num_rows != 1) {
   echo "<b>Invitación</b>: " . substr($uid, -6) . "<br>";
 }
 
+if ($DEBUG) {
+  echo "DEBUG - <b>uid</b>: " . $uid . "<br>";
+  echo "DEBUG - <b>_SESSION['uid']</b>: " . $_SESSION["uid"] . "<br>";
+  echo "DEBUG - <b>join_gid</b>: " . $join_gid . "<br>";
+}
+
+
 if (!isset($_SESSION["uid"]) and isset($join_gid)) {
   echo "Escanea el QR de la invitación con la cámara de tu móvil antes de utilizar el enlace para unirte a un grupo.<br>";
-  echo "Recuerda que debes usar el mismo dispositivo, navegador y sesión (evita usar el modo incógnito)";
+  echo "Recuerda que debes usar el mismo dispositivo, navegador y sesión (evita usar el modo privado/incógnito)";
   getScanInstructions();
   exit(1);
 } elseif (isset($_SESSION["uid"]) and isset($join_gid)) {
