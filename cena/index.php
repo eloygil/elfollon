@@ -45,41 +45,57 @@ h1 {
 <?php
 $BASE_URL = "https://" . $_SERVER['SERVER_NAME'];
 function getAssignedGroup($conn) {
-  $result = $conn->query("SELECT gid FROM cena_invitaciones WHERE uid LIKE '%" . $_SESSION["uid"] . "%'");
+  $stmt = $conn->prepare("SELECT gid FROM cena_invitaciones WHERE uid=?");
+  $stmt->bind_param("s", $_SESSION["uid"]);
+  $result = $stmt->execute();
+  $result = $stmt->get_result();
   if ($result->num_rows > 0) {
     return $result->fetch_row()[0];
   }
+  return NULL;
 }
 
 function getGroupNumber($conn, $gid) {
-  $result = $conn->query("SELECT id FROM cena_grupos WHERE gid LIKE '%" . $gid . "%'");
+  $stmt = $conn->prepare("SELECT id FROM cena_grupos WHERE gid=?");
+  $stmt->bind_param("s", $gid);
+  $stmt->execute();
+  $result = $stmt->get_result();
   return $result->fetch_row()[0];
 }
 
 function getGroupSize($conn, $gid) {
-  $result = $conn->query("SELECT COUNT(*) FROM `cena_invitaciones` WHERE gid = '" . $gid . "'");
+  $stmt = $conn->prepare("SELECT COUNT(*) FROM `cena_invitaciones` WHERE gid=?");
+  $stmt->bind_param("s", $gid);
+  $stmt->execute();
+  $result = $stmt->get_result();
   return $result->fetch_row()[0];
 }
 
 function getGroupTable($conn, $gid) {
-  $result = $conn->query("SELECT mesa FROM `cena_grupos` WHERE gid = '" . $gid . "'");
+  $stmt = $conn->prepare("SELECT mesa FROM `cena_grupos` WHERE gid=?");
+  $stmt->bind_param("s", $gid);
+  $stmt->execute();
+  $result = $stmt->get_result();
   $table = $result->fetch_row()[0];
   return $table;
 }
 
 function getGroupTableSeats($conn, $gid) {
-  $seat_n = getGroupSize($conn, $gid);
-  $result = $conn->query("SELECT asiento FROM `cena_grupos` WHERE gid = '" . $gid . "'");
+  $stmt = $conn->prepare("SELECT asiento FROM `cena_grupos` WHERE gid=?");
+  $stmt->bind_param("s", $gid);
+  $stmt->execute();
+  $result = $stmt->get_result();
   $first_seat = $result->fetch_row()[0];
   if ($first_seat == null) {
     return null;
   }
+  $seat_n = getGroupSize($conn, $gid);
   return range($first_seat, $first_seat + ($seat_n - 1));
 }
 
 function getGroupNewId($conn) {
   $max = $conn->query("SELECT MAX(id) FROM `cena_grupos`")->fetch_row()[0];
-  $count  = $conn->query("SELECT COUNT(*) FROM `cena_grupos`")->fetch_row()[0];
+  $count = $conn->query("SELECT COUNT(*) FROM `cena_grupos`")->fetch_row()[0];
   if ($max == $count) {
     return $max + 1;
   } else {
@@ -97,11 +113,13 @@ function getGroupNewId($conn) {
 
 function getScanInstructions() {
   # TODO: Add animated GIF explaining how to scan a QR code can be added here
-  # <div class="scan-instructions"><img src="img/scan.gif"></div><br>
+  # e.g.: <div class="scan-instructions"><img src="img/scan.gif"></div><br>
 }
 
 function setGroup($conn, $gid) {
-  $conn->query("UPDATE cena_invitaciones SET gid = '" . $gid . "' WHERE uid LIKE '%" . $_SESSION["uid"] . "%'");
+  $stmt = $conn->prepare("UPDATE cena_invitaciones SET gid=? WHERE uid=?");
+  $stmt->bind_param("ss", $gid, $_SESSION["uid"]);
+  $result = $stmt->execute();
 }
 
 function createGroup($conn) {
@@ -109,8 +127,14 @@ function createGroup($conn) {
   $conn->begin_transaction();
   try {
     $id = getGroupNewId($conn);
-    $conn->query("INSERT INTO cena_grupos (gid, id) VALUES ('" . $new_gid . "', " . $id . ")");
-    $conn->query("UPDATE cena_invitaciones SET gid = '" . $new_gid . "' WHERE uid LIKE '%" . $_SESSION["uid"] . "%'");
+    # Insert new group
+    $stmt = $conn->prepare("INSERT INTO cena_grupos (gid, id) VALUES (?,?)");
+    $stmt->bind_param("ss", $new_gid, $id);
+    $stmt->execute();
+    # Update invitations accordingly
+    $stmt = $conn->prepare("UPDATE cena_invitaciones SET gid=? WHERE uid=?");
+    $stmt->bind_param("ss", $new_gid, $_SESSION["uid"]);
+    $stmt->execute();
     $conn->commit();
   } catch (mysqli_sql_exception $exception) {
     $conn->rollback();
@@ -123,11 +147,15 @@ function createGroup($conn) {
 function leaveGroup($conn) {
   $gid = getAssignedGroup($conn);
   if (getGroupSize($conn, $gid) == 1) {
-    # Eliminar grupo
-    $conn->query("DELETE FROM cena_grupos WHERE gid LIKE '%" . $gid . "%'");
+    # Eliminar grupo (foreign key cascading is enabled, no need to explicitly set to NULL)
+    $stmt = $conn->prepare("DELETE FROM cena_grupos WHERE gid=?");
+    $stmt->bind_param("s", $gid);
+    $stmt->execute();
   } else {
     # Eliminar asignación
-    $conn->query("UPDATE cena_invitaciones SET gid=NULL WHERE uid LIKE '%" . $_SESSION["uid"] . "%'");
+    $stmt = $conn->prepare("UPDATE cena_invitaciones SET gid=NULL WHERE uid=?");
+    $stmt->bind_param("s", $_SESSION["uid"]);
+    $stmt->execute();
   }
 }
 
@@ -144,7 +172,10 @@ if (strlen($join_gid) != $hashSize) {
 if (!isset($uid)) {
   $uid = $_SESSION["uid"];
 }
-$result = $conn->query("SELECT uid, gid FROM cena_invitaciones WHERE uid LIKE '%" . $uid . "%'");
+$stmt = $conn->prepare("SELECT uid, gid FROM cena_invitaciones WHERE uid=?");
+$stmt->bind_param("s", $uid);
+$stmt->execute();
+$result = $stmt->get_result();
 if ($result->num_rows != 1) {
   echo "<b style=\"color: red;\">ERROR</b>: Invitación no válida.<br>";
   if (!isset($join_gid)) {
@@ -154,7 +185,9 @@ if ($result->num_rows != 1) {
   }
 } else {
   $_SESSION["uid"] = $uid;
-  $conn->query("UPDATE cena_invitaciones SET last_access = NOW() WHERE uid LIKE '%" . $uid . "%'");
+  $stmt = $conn->prepare("UPDATE cena_invitaciones SET last_access = NOW() WHERE uid=?");
+  $stmt->bind_param("s", $uid);
+  $stmt->execute();
   echo "<b>Invitación</b>: 0x" . substr($uid, -6) . "<br>";
 }
 
@@ -216,9 +249,9 @@ if ($gid) {
     echo " <a href=\"" . $BASE_URL . "/?abandonar\" class=\"btn btn-danger\">Abandonar grupo</a><br>";
   }
   if ($nmm > 1) {
-    echo "En este momento, en el grupo sois " . getGroupSize($conn, $gid) . " personas en total.<br>";
+    echo "En este momento, en el grupo sois <b>" . getGroupSize($conn, $gid) . "</b> personas en total.<br>";
   } else {
-    echo "Eres el único miembro de este grupo.<br>";
+    echo "Eres el <b>único</b> miembro de este grupo.<br>";
   }
   $url = $BASE_URL . "/?unirse=" . $gid;
   echo "Invita a tu grupo a otros socios que ya hayan escaneado su QR mediante un enlace:<br>";
