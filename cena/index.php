@@ -26,6 +26,9 @@ require('../../php-require/mysql-elfollon.php');
   text-align: center;
   white-space: nowrap;
 }
+.btn-whatsapp img {
+  margin-top: -2.5px;
+}
 .btn-whatsapp-label {
   color: #fff;
 }
@@ -188,7 +191,7 @@ if ($result->num_rows != 1) {
   $stmt = $conn->prepare("UPDATE cena_invitaciones SET last_access = NOW() WHERE uid=?");
   $stmt->bind_param("s", $uid);
   $stmt->execute();
-  echo "<b>Invitación</b>: 0x" . substr($uid, -6) . "<br>";
+  echo "<b>Invitación</b>: 0x" . strtoupper(substr($uid, 0, 2)) . "(...)" . strtoupper(substr($uid, -6)) . "<br>";
 }
 
 if (!isset($_SESSION["uid"]) and isset($join_gid)) {
