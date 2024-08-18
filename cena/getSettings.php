@@ -3,6 +3,7 @@
 $date = ['26', '7', '2025', 21, 30];
 [$day_event, $month_event, $year_event, $hour_event, $minute_event] = $date;
 $limitMinutes = 15;
+$hashSize = 40;
 
 function getLimitMinutes() {
   # This is the amount of time before the event starts when the DB stops

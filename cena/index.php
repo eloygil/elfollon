@@ -95,6 +95,11 @@ function getGroupNewId($conn) {
   }
 }
 
+function getScanInstructions() {
+  # TODO: Add animated GIF explaining how to scan a QR code can be added here
+  # <div class="scan-instructions"><img src="img/scan.gif"></div><br>
+}
+
 function setGroup($conn, $gid) {
   $conn->query("UPDATE cena_invitaciones SET gid = '" . $gid . "' WHERE uid LIKE '%" . $_SESSION["uid"] . "%'");
 }
@@ -127,16 +132,24 @@ function leaveGroup($conn) {
 }
 
 session_start();
-$uid = filter_input(INPUT_GET, 'invitacion', FILTER_SANITIZE_URL);
-$join_gid = filter_input(INPUT_GET, 'unirse', FILTER_SANITIZE_URL);
+# Sanitize inputs and guarantee valid data is received
+$uid = preg_replace('/[^-a-zA-Z0-9_]/', '', filter_input(INPUT_GET, 'invitacion', FILTER_SANITIZE_URL));
+if (strlen($uid) != $hashSize) {
+  unset($uid);
+}
+$join_gid = preg_replace('/[^-a-zA-Z0-9_]/', '', filter_input(INPUT_GET, 'unirse', FILTER_SANITIZE_URL));
+if (strlen($join_gid) != $hashSize) {
+  unset($join_gid);
+}
 if (!isset($uid)) {
-    $uid = $_SESSION["uid"];
+  $uid = $_SESSION["uid"];
 }
 $result = $conn->query("SELECT uid, gid FROM cena_invitaciones WHERE uid LIKE '%" . $uid . "%'");
 if ($result->num_rows != 1) {
-	echo "<b style=\"color: red;\">ERROR</b>: Invitación no válida.<br>";
+  echo "<b style=\"color: red;\">ERROR</b>: Invitación no válida.<br>";
   if (!isset($join_gid)) {
     echo "Por favor, escanea el código QR para identificarte.<br>";
+    getScanInstructions();
     exit(1);
   }
 } else {
@@ -148,6 +161,7 @@ if ($result->num_rows != 1) {
 if (!isset($_SESSION["uid"]) and isset($join_gid)) {
   echo "Escanea el QR de la invitación con la cámara de tu móvil antes de utilizar el enlace para unirte a un grupo.<br>";
   echo "Recuerda que debes usar el mismo dispositivo, navegador y sesión (evita usar el modo incógnito)";
+  getScanInstructions();
   exit(1);
 } elseif (isset($_SESSION["uid"]) and isset($join_gid)) {
   if ($join_gid != getAssignedGroup($conn)) {
@@ -207,8 +221,8 @@ if ($gid) {
     echo "Eres el único miembro de este grupo.<br>";
   }
   $url = $BASE_URL . "/?unirse=" . $gid;
-  echo "Puedes invitar a tu grupo a otros socios que ya hayan escaneado su QR compartiendo con ellos un enlace:<br>";
-  #echo "<a href=\"" . $url . "\"><div id=\"TextoACopiar\">" . $url . "</div></a> ";
+  echo "Invita a tu grupo a otros socios que ya hayan escaneado su QR mediante un enlace:<br>";
+  echo "<a href=\"" . $url . "\"><div id=\"TextoACopiar\" hidden>" . $url . "</div></a> ";
   ?>
   <button id="BotonCopiar" class="btn btn-primary" onclick="copyOnClick()">Copiar enlace</button>
   <script type="text/javascript">
