@@ -30,8 +30,9 @@ except IndexError:
     print("ERROR: A number of invitations must be provided.")
     sys.exit(1)
 
-# Clean invitation database
+# Clean invitation and groups database
 cursor.execute("DELETE FROM `cena_invitaciones` WHERE 1")
+cursor.execute("DELETE FROM `cena_grupos` WHERE 1")
 
 # Generate N new different hashes and insert them into the invitation table
 h = hashlib.new('sha1')
