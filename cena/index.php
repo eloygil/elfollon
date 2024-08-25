@@ -238,8 +238,8 @@ $nmm = getGroupSize($conn, $gid);
 $gt = getGroupTable($conn, $gid);
 $gts = getGroupTableSeats($conn, $gid);
 if (!isFrozen()) {
-  echo "Ya no hace falta que esperes en la puerta para poder coger sitio. Si quieres, podrás ir a la cena acompañando a la charanga.<br>";
   echo "Este sistema de reservas permite a los socios unirse a grupos utilizando el QR de su invitación.<br>";
+  echo "Ya no hace falta que esperes en la puerta para poder coger sitio. Si quieres, podrás ir a la cena acompañando a la charanga.<br>";
   echo "A la hora de la cena, cada grupo tendrá un lugar asignado en una mesa, sin necesidad de llegar pronto. Además, así ayudas a que no se reserven sitios de más y que finalmente no se utilicen.<br>";
   echo "Una vez eres parte de un grupo sólo tienes que esperar. Podrás ver aquí los asientos que se os han asignado justo antes de la cena.<br>";
 } elseif ($gid == null) {
