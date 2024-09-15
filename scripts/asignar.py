@@ -1,7 +1,10 @@
 #!/usr/bin/python3
 from datetime import datetime, timedelta
 import mysql.connector
+import pytz
 import sys, time
+
+DEBUG = True
 
 class table(object):
     def __init__(self, n_seats):
@@ -15,6 +18,10 @@ class table(object):
         seat = self._used + 1
         self._used += number
         return seat
+
+def debug_print(msg, level='DEBUG'):
+    if DEBUG:
+        print(f"[{level}] {msg}")
 
 def getEventDate(cfg='../cena/getSettings.php'):
     # The purpose of this function is reading the event date from the PHP config file
@@ -39,8 +46,14 @@ def getEventLimit(cfg='../cena/getSettings.php'):
 def getGreenlight():
     # It will exit in most cases, but let the execution happen if it is time to assign seats
     dt = getEventDate() - timedelta(minutes=getEventLimit())  # The calculation happens some minutes before the event
-    now = datetime.now()
+    now = datetime.now(tz=pytz.timezone("Europe/Madrid"))     # Adjusted to Spanish peninsular time
     if now.year != dt.year or now.month != dt.month or now.day != dt.day or now.hour != dt.hour or now.minute != dt.minute:
+        debug_print(f"Year: {now.year} vs {dt.year}")
+        debug_print(f"Month: {now.month} vs {dt.month}")
+        debug_print(f"Day: {now.day} vs {dt.day}")
+        debug_print(f"Hour: {now.hour} vs {dt.hour}")
+        debug_print(f"Minute: {now.minute} vs {dt.minute}")
+        debug_print("Nothing to do here!")
         exit(0)
     time.sleep(2)
 

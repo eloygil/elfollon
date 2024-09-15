@@ -65,8 +65,10 @@ function getMinutesBeforeTime($base_time, $minutes) {
 }
 
 function isFrozen() {
+  # This event always happens in summer. For simplicity, we assume a fixed
+  # two hour difference between UTC and CEST around dinner time.
   $limit_date = getEventDay() . "-" . getEventMonthNumber(1) . "-" . getEventYear() . " " . getMinutesBeforeTime(getEventTime(), getLimitMinutes());
-  return strtotime("now") > strtotime($limit_date);
+  return time() + 60*60*2 > strtotime($limit_date);
 }
 
 ?>
