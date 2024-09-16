@@ -112,10 +112,9 @@ conn = mysql.connector.connect(user=creds['username'], password=creds['password'
 cursor = conn.cursor()
 mapa = getMap(4, 80)
 
-cursor.execute("SELECT gid, COUNT(*) as count FROM `cena_invitaciones` WHERE 1 GROUP BY gid ORDER BY count DESC")
+cursor.execute("SELECT gid, COUNT(*) as count FROM `cena_invitaciones` WHERE gid IS NOT NULL GROUP BY gid ORDER BY count DESC")
 rows = cursor.fetchall()
-for row in rows:
-    gid, n = row
+for gid, n in rows:
     a = getAllocation(cursor, mapa, gid, n)
     print(f"Group #{n} ({gid}) has been assigned to table {a}")
 
