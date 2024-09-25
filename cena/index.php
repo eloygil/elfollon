@@ -284,8 +284,6 @@ if ($gid) {
   echo "Actualmente no formas parte de ningún grupo.<br> Ahora que has escaneado tu invitación, puedes unirte a uno existente a través de un enlace o crear uno nuevo. ";
   echo "<a href=\"" . $BASE_URL . "/?crear\" class=\"btn btn-primary\">Crear nuevo grupo</a><br>";
 }
-print(strtotime(getEventDay() . "-" . getEventMonthNumber(1) . "-" . getEventYear() . " " . getMinutesBeforeTime(getEventTime(), getLimitMinutes())));
-print(time() + 60*60*2);
 ?>
 Los socios pueden unirse a grupos hasta <?php echo getLimitMinutes(); ?> minutos antes del comienzo de la cena, momento en el que se asignarán los asientos.<br>
 A partir de las <?php echo getMinutesBeforeTime(getPrintableEventTime(), getLimitMinutes()); ?>h escanea de nuevo tu QR para ver aquí la asignación final.
