@@ -239,7 +239,7 @@ if ($DEBUG) {
 
 
 if (!isset($_SESSION["uid"]) and isset($join_gid)) {
-  echo "Escanea el QR de la invitación con la cámara de tu móvil antes de utilizar el enlace para unirte a un grupo.<br>";
+  echo "Escanea el QR de la invitación con la cámara de tu móvil <b>antes</b> de utilizar el enlace para unirte a un grupo.<br>";
   echo "Recuerda que debes usar el mismo dispositivo, navegador y sesión (evita usar el modo privado/incógnito)";
   getScanInstructions();
   exit(1);
