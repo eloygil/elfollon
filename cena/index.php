@@ -115,6 +115,10 @@ function getGroupNewId($conn) {
   }
 }
 
+function getEventIsToday() {
+  return True;
+}
+
 function getScanInstructions() {
   # TODO: Add animated GIF explaining how to scan a QR code can be added here
   # e.g.: <div class="scan-instructions"><img src="img/scan.gif"></div><br>
@@ -243,10 +247,8 @@ $nmm = getGroupSize($conn, $gid);
 $gt = getGroupTable($conn, $gid);
 $gts = getGroupTableSeats($conn, $gid);
 if (!isFrozen()) {
-  echo "Este sistema de reservas permite a los socios unirse a grupos utilizando el QR de su invitación.<br>";
-  echo "Ya no hace falta que esperes en la puerta para poder coger sitio. Si quieres, podrás ir a la cena acompañando a la charanga.<br>";
-  echo "A la hora de la cena, cada grupo tendrá un lugar asignado en una mesa, sin necesidad de llegar pronto. Además, así ayudas a que no se reserven sitios de más y que finalmente no se utilicen.<br>";
-  echo "Una vez eres parte de un grupo sólo tienes que esperar. Podrás ver aquí los asientos que se os han asignado justo antes de la cena.<br>";
+  echo "Reserva tu asiento en grupo utilizando el QR de tu invitación. ";
+  echo "A la hora de la cena cada grupo tendrá un lugar asignado en una mesa.<br>";
 } elseif ($gid == null) {
   echo "No formas parte de ningún grupo de reserva y el plazo está ya cerrado.<br>";
   echo "Por favor, dirígete hacia las mesas destinadas a los socios que acuden sin reserva, allí podréis sentaros libremente como en años anteriores.";
@@ -268,12 +270,12 @@ if ($gid) {
     echo " <a href=\"" . $BASE_URL . "/?abandonar\" class=\"btn btn-danger\">Abandonar grupo</a><br>";
   }
   if ($nmm > 1) {
-    echo "En este momento, en el grupo sois <b>" . getGroupSize($conn, $gid) . "</b> personas en total.<br>";
+    echo "En el grupo sois <b>" . getGroupSize($conn, $gid) . "</b> personas en total.<br>";
   } else {
     echo "Eres el <b>único</b> miembro de este grupo.<br>";
   }
   $url = $BASE_URL . "/?unirse=" . $gid;
-  echo "Invita a tu grupo a otros socios que ya hayan escaneado su QR mediante un enlace:<br>";
+  echo "Invita a tu grupo a otros mediante un enlace:<br>";
   echo "<a href=\"" . $url . "\"><div id=\"TextoACopiar\" hidden>" . $url . "</div></a> ";
   ?>
   <button id="BotonCopiar" class="btn btn-primary" onclick="copyOnClick()">Copiar enlace</button>
@@ -286,12 +288,15 @@ if ($gid) {
   <?php
   include("getWhatsapp.php");
 } else {
-  echo "Actualmente no formas parte de ningún grupo.<br> Ahora que has escaneado tu invitación, puedes unirte a uno existente a través de un enlace o crear uno nuevo. ";
+  echo "<b>No formas parte de ningún grupo</b>, puedes unirte a uno existente a través de un enlace o crear uno nuevo. ";
   echo "<a href=\"" . $BASE_URL . "/?crear\" class=\"btn btn-primary\">Crear nuevo grupo</a><br>";
 }
+
+echo "Los grupos serán definitivos " . getLimitMinutes() . " minutos antes del comienzo de la cena.<br>";
+if (getEventIsToday()) {
+  echo "A partir de las " . getMinutesBeforeTime(getPrintableEventTime(), getLimitMinutes()) . "h escanea de nuevo tu QR para ver vuestros asientos.";
+}
 ?>
-Los socios pueden unirse a grupos hasta <?php echo getLimitMinutes(); ?> minutos antes del comienzo de la cena, momento en el que se asignarán los asientos.<br>
-A partir de las <?php echo getMinutesBeforeTime(getPrintableEventTime(), getLimitMinutes()); ?>h escanea de nuevo tu QR para ver aquí la asignación final.
     </div>
   </div>
 </div>
