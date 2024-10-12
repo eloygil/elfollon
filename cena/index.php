@@ -116,7 +116,7 @@ function getGroupNewId($conn) {
 }
 
 function getEventIsToday() {
-  return True;
+  return mktime(0,0,0,getEventDay(),getEventMonthNumber(),getEventYear()) < strtotime('now');
 }
 
 function getScanInstructions() {
