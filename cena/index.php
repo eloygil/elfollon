@@ -176,6 +176,10 @@ function leaveGroup($conn) {
   }
 }
 
+function getPlural($n) {
+  if ($n > 1) { return "s"; }
+}
+
 session_start();
 # Sanitize inputs and guarantee valid data is received
 $uid = preg_replace('/[^-a-zA-Z0-9_]/', '', filter_input(INPUT_GET, 'invitacion', FILTER_SANITIZE_URL));
@@ -188,7 +192,7 @@ if (strlen($join_gid) != $hashSize) {
   if ($DEBUG) { echo "DEBUG - Wrong group hash length, ignoring<br>"; }
   unset($join_gid);
 }
-if (!isset($uid)) {
+if (!isset($uid) and isset($_SESSION["uid"])) {
   $uid = $_SESSION["uid"];
 }
 
@@ -255,17 +259,21 @@ $gnum = getGroupNumber($conn, $gid);
 $nmm = getGroupSize($conn, $gid);
 $gt = getGroupTable($conn, $gid);
 $gts = getGroupTableSeats($conn, $gid);
+if ($gid) {
+  echo "<b>Grupo</b>: #" . $gnum . " (" . $nmm . " miembro" . getPlural($nmm) . ")";
+  if (!isFrozen()) {
+    echo " <a href=\"" . $BASE_URL . "/?abandonar\" class=\"btn btn-danger\">Abandonar grupo</a><br>";
+  }
+}
 if (!isFrozen()) {
-  echo "Reserva tu asiento en grupo utilizando el QR de tu invitación. ";
   echo "A la hora de la cena cada grupo tendrá un lugar asignado en una mesa.<br>";
 } elseif ($gid == null) {
   echo "No formas parte de ningún grupo de reserva y el plazo está ya cerrado.<br>";
   echo "Por favor, dirígete hacia las mesas destinadas a los socios que acuden sin reserva, allí podréis sentaros libremente como en años anteriores.";
   exit(0);
 } elseif ($gt != null and $gts != null) {
-  echo "<b>Grupo</b>: #" . $gnum . "<br>";
   echo "<b>Mesa</b>: " . $gt . "<br>";
-  echo "<b>Asiento"; if ($nmm > 1) { echo "s"; }echo "</b>: " . $gts[0];
+  echo "<b>Asiento" . getPlural($nmm) . "</b>: " . $gts[0];
   if ($nmm > 1) { echo "-" . $gts[$nmm-1]; }
   exit(0);
 } else {
@@ -274,15 +282,6 @@ if (!isFrozen()) {
 }
 
 if ($gid) {
-  echo "Eres parte del <b>GRUPO #" . $gnum . "</b>";
-  if (!isFrozen()) {
-    echo " <a href=\"" . $BASE_URL . "/?abandonar\" class=\"btn btn-danger\">Abandonar grupo</a><br>";
-  }
-  if ($nmm > 1) {
-    echo "En el grupo sois <b>" . getGroupSize($conn, $gid) . "</b> personas en total.<br>";
-  } else {
-    echo "Eres el <b>único</b> miembro de este grupo.<br>";
-  }
   $url = $BASE_URL . "/?unirse=" . $gid;
   echo "Invita a tu grupo a otros mediante un enlace:<br>";
   echo "<a href=\"" . $url . "\"><div id=\"TextoACopiar\" hidden>" . $url . "</div></a> ";
