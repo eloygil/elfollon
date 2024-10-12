@@ -44,6 +44,7 @@ body {
 }
 h1 {
   text-align: center;
+  padding: 1em;
 }
 </style>
 </head>
@@ -99,7 +100,7 @@ function getGroupTableSeats($conn, $gid) {
   $stmt->execute();
   $result = $stmt->get_result();
   $first_seat = $result->fetch_row()[0];
-  if ($first_seat == null) {
+  if (is_null($first_seat)) {
     return null;
   }
   $seat_n = getGroupSize($conn, $gid);
@@ -267,11 +268,11 @@ if ($gid) {
 }
 if (!isFrozen()) {
   echo "A la hora de la cena cada grupo tendrá un lugar asignado en una mesa.<br>";
-} elseif ($gid == null) {
+} elseif (is_null($gid)) {
   echo "No formas parte de ningún grupo de reserva y el plazo está ya cerrado.<br>";
   echo "Por favor, dirígete hacia las mesas destinadas a los socios que acuden sin reserva, allí podréis sentaros libremente como en años anteriores.";
   exit(0);
-} elseif ($gt != null and $gts != null) {
+} elseif (!is_null($gt) and !is_null($gts)) {
   echo "<b>Mesa</b>: " . $gt . "<br>";
   echo "<b>Asiento" . getPlural($nmm) . "</b>: " . $gts[0];
   if ($nmm > 1) { echo "-" . $gts[$nmm-1]; }
