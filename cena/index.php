@@ -199,8 +199,7 @@ if ($result->num_rows != 1) {
   $stmt->bind_param("s", $uid);
   $stmt->execute();
   $label = $stmt->get_result()->fetch_row()[0];
-  $tag = ($label ? $label : substr($uid, -6));
-  $tag = (is_numeric($tag) ? "#" . $tag : $tag);
+  $tag = ($label ? (is_numeric($label) ? "#" . $label : $label) : substr($uid, -6));
   echo "<b>Invitación</b>: " . $tag . "<br>";
 }
 
