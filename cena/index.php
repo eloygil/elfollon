@@ -42,8 +42,19 @@ body {
 .btn-whatsapp-label {
   color: #fff;
 }
+
+.social {
+  text-align: center;
+  padding: 0.2em;
+}
+
 h1 {
   text-align: center;
+  padding: 1em;
+}
+
+hr {
+  padding: 0.2em;
 }
 </style>
 </head>
@@ -261,17 +272,16 @@ $gt = getGroupTable($conn, $gid);
 $gts = getGroupTableSeats($conn, $gid);
 if ($gid) {
   echo "<b>Grupo</b>: #" . $gnum . " (" . $nmm . " miembro" . getPlural($nmm) . ")";
-  if (!isFrozen()) {
-    echo " <a href=\"" . $BASE_URL . "/?abandonar\" class=\"btn btn-danger\">Abandonar grupo</a><br>";
-  }
 }
+
 if (!isFrozen()) {
+  echo "<hr>";
   echo "A la hora de la cena cada grupo tendrá un lugar asignado en una mesa.<br>";
-} elseif ($gid == null) {
+} elseif (is_null($gid)) {
   echo "No formas parte de ningún grupo de reserva y el plazo está ya cerrado.<br>";
   echo "Por favor, dirígete hacia las mesas destinadas a los socios que acuden sin reserva, allí podréis sentaros libremente como en años anteriores.";
   exit(0);
-} elseif ($gt != null and $gts != null) {
+} elseif (!is_null($gt) and !is_null($gts)) {
   echo "<b>Mesa</b>: " . $gt . "<br>";
   echo "<b>Asiento" . getPlural($nmm) . "</b>: " . $gts[0];
   if ($nmm > 1) { echo "-" . $gts[$nmm-1]; }
@@ -284,9 +294,10 @@ if (!isFrozen()) {
 if ($gid) {
   $url = $BASE_URL . "/?unirse=" . $gid;
   echo "Invita a tu grupo a otros mediante un enlace:<br>";
+  echo "<div class=\"social\">";
   echo "<a href=\"" . $url . "\"><div id=\"TextoACopiar\" hidden>" . $url . "</div></a> ";
   ?>
-  <button id="BotonCopiar" class="btn btn-primary" onclick="copyOnClick()">Copiar enlace</button>
+  <button id="BotonCopiar" class="btn btn-primary" onclick="copyOnClick()">Copiar</button>
   <script type="text/javascript">
     function copyOnClick() {
       var codigoACopiar = document.getElementById('TextoACopiar');
@@ -295,9 +306,11 @@ if ($gid) {
   </script>
   <?php
   include("getWhatsapp.php");
+  echo "<a href=\"" . $BASE_URL . "/?abandonar\" class=\"btn btn-danger\">Abandonar</a><br>";
+  echo "</div>";
 } else {
-  echo "<b>No formas parte de ningún grupo</b>, puedes unirte a uno existente a través de un enlace o crear uno nuevo. ";
-  echo "<a href=\"" . $BASE_URL . "/?crear\" class=\"btn btn-primary\">Crear nuevo grupo</a><br>";
+  echo "<b>No formas parte de ningún grupo</b>, puedes unirte a uno existente a través de un enlace o crear uno nuevo.<br>";
+  echo "<div class=\"social\"><a href=\"" . $BASE_URL . "/?crear\" class=\"btn btn-primary\">Crear nuevo grupo</a></div><br>";
 }
 
 echo "Los grupos serán definitivos " . getLimitMinutes() . " minutos antes del comienzo de la cena.<br>";
