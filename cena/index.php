@@ -195,7 +195,12 @@ if ($result->num_rows != 1) {
   $stmt = $conn->prepare("UPDATE cena_invitaciones SET last_access = NOW() WHERE uid=?");
   $stmt->bind_param("s", $uid);
   $stmt->execute();
-  echo "<b>Invitación</b>: " . substr($uid, -6) . "<br>";
+  $stmt = $conn->prepare("SELECT label FROM cena_invitaciones WHERE uid=?");
+  $stmt->bind_param("s", $uid);
+  $stmt->execute();
+  $label = $stmt->get_result()->fetch_row()[0];
+  $tag = ($label ? $label : substr($uid, -6));
+  echo "<b>Invitación</b>: " . $tag . "<br>";
 }
 
 if ($DEBUG) {
