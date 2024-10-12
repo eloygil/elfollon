@@ -297,7 +297,7 @@ if ($gid) {
   echo "<div class=\"social\">";
   echo "<a href=\"" . $url . "\"><div id=\"TextoACopiar\" hidden>" . $url . "</div></a> ";
   ?>
-  <button id="BotonCopiar" class="btn btn-primary" onclick="copyOnClick()">Copiar</button>
+  <button id="BotonCopiar" class="btn btn-primary" onclick="copyOnClick()">Copiar enlace</button>
   <script type="text/javascript">
     function copyOnClick() {
       var codigoACopiar = document.getElementById('TextoACopiar');
