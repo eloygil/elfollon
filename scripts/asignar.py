@@ -129,6 +129,7 @@ def setHTML(mapa):
         soup = BeautifulSoup(mesa, "html.parser")
         for cell in soup.find_all("td"):
             cell['class'] = "m" + str(n) + "a" + str(cell.string)
+            cell['style'] = "border: 1px solid black;"
         f.write(str(soup))
         f.write("</tr>")
     f.write("</table>")

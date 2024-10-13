@@ -57,10 +57,11 @@ hr {
   padding: 0.2em;
 }
 
-th, td {
-  border: 1px solid black;
+td {
   border-radius: 10px;
+  text-align: center;
 }
+
 </style>
 
 <?php
