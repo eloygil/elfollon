@@ -199,11 +199,7 @@ function getIsUserInDatabase($conn, $uid) {
   $stmt->bind_param("s", $uid);
   $stmt->execute();
   $result = $stmt->get_result();
-  if ($result->num_rows == 1) {
-    $_SESSION["uid"] = $uid;
-    return True;
-  }
-  return False;
+  return $result->num_rows == 1;
 }
 
 session_start();
@@ -231,6 +227,10 @@ $gid = getAssignedGroup($conn);
 if (!is_null($gid) and isFrozen()) {
     echo "<link href=\"css/" . $gid . ".css\" rel=\"stylesheet\">";
 }
+$gnum = getGroupNumber($conn, $gid);
+$nmm = getGroupSize($conn, $gid);
+$gt = getGroupTable($conn, $gid);
+$gts = getGroupTableSeats($conn, $gid);
 ?>
 </head>
 <body>
@@ -295,11 +295,6 @@ if ((isset($_GET['crear'])) and (!isFrozen())) {
   header('Location: /');
 }
 
-$gid = getAssignedGroup($conn);
-$gnum = getGroupNumber($conn, $gid);
-$nmm = getGroupSize($conn, $gid);
-$gt = getGroupTable($conn, $gid);
-$gts = getGroupTableSeats($conn, $gid);
 if ($gid) {
   echo "<b>Grupo</b>: #" . $gnum . " (" . $nmm . " miembro" . getPlural($nmm) . ")<br>";
 }
