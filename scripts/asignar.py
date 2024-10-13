@@ -14,6 +14,9 @@ class table(object):
     def getAvailable(self):
         return self._size - self._used
 
+    def getSize(self):
+        return self._size
+
     def setReservation(self, number):
         seat = self._used + 1
         self._used += number
@@ -104,7 +107,32 @@ def getAllocation(cursor, mapa, gid, n_seats):
             seat = t.setReservation(n_seats)
             # Update MySQL database
             cursor.execute("UPDATE `cena_grupos` SET mesa=%s, asiento=%s WHERE gid = %s", (preference[i], seat, gid))
+            # Generate CSS for group
+            setCSS(gid, preference[i], seat, n_seats)
             return preference[i]
+
+def setCSS(gid, tid, first_seat, n_seats):
+    # Generates the CSS for a group
+    f = open(f'/var/www/elfollon/cena/css/{gid}.css', 'w')
+    for seat in range(first_seat, first_seat + n_seats + 1):
+        f.write("td.m" + str(tid) + "a" + str(seat) + " { text-color: red; }\n")
+    f.close()
+
+def setHTML(mapa):
+    from tabulate import tabulate
+    from bs4 import BeautifulSoup
+    f = open('/var/www/elfollon/cena/mapa.html', 'w')
+    f.write("<table>")
+    for n in range(1, len(mapa) + 1):
+        f.write("<tr><td>Mesa " + str(n) + "</td><td>")
+        mesa = tabulate([list(range(1, mapa[n].getSize()+1, 2)), list(range(2, mapa[n].getSize()+1, 2))], tablefmt='html')
+        soup = BeautifulSoup(mesa, "html.parser")
+        for cell in soup.find_all("td"):
+            cell['class'] = "m" + str(n) + "a" + str(cell.string)
+        f.write(str(soup))
+        f.write("</tr>")
+    f.write("</table>")
+    f.close()
 
 getGreenlight()
 creds = getMySQLCredentials()
@@ -117,5 +145,8 @@ rows = cursor.fetchall()
 for gid, n in rows:
     a = getAllocation(cursor, mapa, gid, n)
     print(f"Group #{n} ({gid}) has been assigned to table {a}")
+
+# Generate HTML map of tables
+setHTML(mapa)
 
 conn.commit()
