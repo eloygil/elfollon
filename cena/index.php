@@ -310,7 +310,7 @@ if (!isFrozen()) {
   echo "<b>Mesa</b>: " . $gt . "<br>";
   echo "<b>Asiento" . getPlural($nmm) . "</b>: " . $gts[0];
   if ($nmm > 1) { echo "-" . $gts[$nmm-1]; }
-  echo "<br>";
+  echo "<br><b>Distribución de mesas y asientos</b>:<br>";
   include("mapa.html");
   exit(0);
 } else {
