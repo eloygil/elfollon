@@ -121,6 +121,7 @@ def setCSS(gid, tid, first_seat, n_seats):
 def setHTML(mapa):
     from tabulate import tabulate
     from bs4 import BeautifulSoup
+    import re
     f = open('/var/www/elfollon/cena/mapa.html', 'w')
     f.write("<table>")
     for n in range(1, len(mapa) + 1):
@@ -128,7 +129,8 @@ def setHTML(mapa):
         mesa = tabulate([list(range(1, mapa[n].getSize()+1, 2)), list(range(2, mapa[n].getSize()+1, 2))], tablefmt='html')
         soup = BeautifulSoup(mesa, "html.parser")
         for cell in soup.find_all("td"):
-            cell['class'] = "m" + str(n) + "a" + str(cell.string)
+            seat = re.sub("[^0-9]", "", str(cell.string))  # Bugfix
+            cell['class'] = "m" + str(n) + "a" + seat
             cell['style'] = "border: 1px solid black;"
         f.write(str(soup))
         f.write("</tr>")

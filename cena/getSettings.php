@@ -1,6 +1,6 @@
 <?php
 # Next is 26/07/2025 21:30 CEST time (España Peninsular)
-$date = ['26', '07', '2025', 21, 30];
+$date = ['13', '10', '2024', 20, 44];
 [$day_event, $month_event, $year_event, $hour_event, $minute_event] = $date;
 $limitMinutes = 15;
 $hashSize = 40;

@@ -57,6 +57,10 @@ hr {
   padding: 0.2em;
 }
 
+table {
+  margin: 0.25em;
+}
+
 td {
   border-radius: 10px;
   text-align: center;
@@ -189,6 +193,18 @@ function getPlural($n) {
   if ($n > 1) { return "s"; }
 }
 
+function getIsUserInDatabase($conn, $uid) {
+  $stmt = $conn->prepare("SELECT uid, gid FROM cena_invitaciones WHERE uid=?");
+  $stmt->bind_param("s", $uid);
+  $stmt->execute();
+  $result = $stmt->get_result();
+  if ($result->num_rows == 1) {
+    $_SESSION["uid"] = $uid;
+    return True;
+  }
+  return False;
+}
+
 session_start();
 # Sanitize inputs and guarantee valid data is received
 $uid = preg_replace('/[^-a-zA-Z0-9_]/', '', filter_input(INPUT_GET, 'invitacion', FILTER_SANITIZE_URL));
@@ -200,6 +216,11 @@ $join_gid = preg_replace('/[^-a-zA-Z0-9_]/', '', filter_input(INPUT_GET, 'unirse
 if (strlen($join_gid) != $hashSize) {
   if ($DEBUG) { echo "DEBUG - Wrong group hash length, ignoring<br>"; }
   unset($join_gid);
+}
+
+$user_in_db = getIsUserInDatabase($conn, $uid);
+if ($user_in_db) {
+  $_SESSION["uid"] = $uid;
 }
 if (!isset($uid) and isset($_SESSION["uid"])) {
   $uid = $_SESSION["uid"];
@@ -220,19 +241,14 @@ if (!is_null($gid) and isFrozen()) {
 <b>Lugar</b>: <?php echo getEventLocation(); ?><br>
 
 <?php
-$stmt = $conn->prepare("SELECT uid, gid FROM cena_invitaciones WHERE uid=?");
-$stmt->bind_param("s", $uid);
-$stmt->execute();
-$result = $stmt->get_result();
-if ($result->num_rows != 1) {
+if (!$user_in_db) {
   echo "<b style=\"color: red;\">ERROR</b>: Invitación no válida.<br>";
   if (!isset($join_gid)) {
-    echo "Por favor, escanea el código QR para identificarte.<br>";
+    echo "Por favor, primero escanea el código QR de la invitación para identificarte.<br>";
     getScanInstructions();
     exit(1);
   }
 } else {
-  $_SESSION["uid"] = $uid;
   $stmt = $conn->prepare("UPDATE cena_invitaciones SET last_access = NOW() WHERE uid=?");
   $stmt->bind_param("s", $uid);
   $stmt->execute();
