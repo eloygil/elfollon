@@ -56,15 +56,12 @@ h1 {
 hr {
   padding: 0.2em;
 }
+
+th, td {
+  border: 1px solid black;
+  border-radius: 10px;
+}
 </style>
-</head>
-<body>
-<h1>Cena Peña "El Follón"</h1>
-<div class="container">
-  <div class="row">
-    <div class="col-xs-12">
-<b>Fecha</b>: <?php echo getEventDay(); ?> de <?php echo getEventMonthText(); ?> de <?php echo getEventYear(); ?> (<?php echo getPrintableEventTime(); ?>h.)<br>
-<b>Lugar</b>: <?php echo getEventLocation(); ?><br>
 
 <?php
 $BASE_URL = "https://" . $_SERVER['SERVER_NAME'];
@@ -207,6 +204,21 @@ if (!isset($uid) and isset($_SESSION["uid"])) {
   $uid = $_SESSION["uid"];
 }
 
+$gid = getAssignedGroup($conn);
+if (!is_null($gid) and isFrozen()) {
+    echo "<link href=\"css/" . $gid . ".css\" rel=\"stylesheet\">";
+}
+?>
+</head>
+<body>
+<h1>Cena Peña "El Follón"</h1>
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12">
+<b>Fecha</b>: <?php echo getEventDay(); ?> de <?php echo getEventMonthText(); ?> de <?php echo getEventYear(); ?> (<?php echo getPrintableEventTime(); ?>h.)<br>
+<b>Lugar</b>: <?php echo getEventLocation(); ?><br>
+
+<?php
 $stmt = $conn->prepare("SELECT uid, gid FROM cena_invitaciones WHERE uid=?");
 $stmt->bind_param("s", $uid);
 $stmt->execute();
@@ -271,7 +283,7 @@ $nmm = getGroupSize($conn, $gid);
 $gt = getGroupTable($conn, $gid);
 $gts = getGroupTableSeats($conn, $gid);
 if ($gid) {
-  echo "<b>Grupo</b>: #" . $gnum . " (" . $nmm . " miembro" . getPlural($nmm) . ")";
+  echo "<b>Grupo</b>: #" . $gnum . " (" . $nmm . " miembro" . getPlural($nmm) . ")<br>";
 }
 
 if (!isFrozen()) {
@@ -285,6 +297,8 @@ if (!isFrozen()) {
   echo "<b>Mesa</b>: " . $gt . "<br>";
   echo "<b>Asiento" . getPlural($nmm) . "</b>: " . $gts[0];
   if ($nmm > 1) { echo "-" . $gts[$nmm-1]; }
+  echo "<br>";
+  include("mapa.html");
   exit(0);
 } else {
   echo "Las reservas están siendo asignadas, vuelve a comprobarlo escaneando el QR de tu invitación más adelante.";

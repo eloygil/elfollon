@@ -114,8 +114,8 @@ def getAllocation(cursor, mapa, gid, n_seats):
 def setCSS(gid, tid, first_seat, n_seats):
     # Generates the CSS for a group
     f = open(f'/var/www/elfollon/cena/css/{gid}.css', 'w')
-    for seat in range(first_seat, first_seat + n_seats + 1):
-        f.write("td.m" + str(tid) + "a" + str(seat) + " { text-color: red; }\n")
+    for seat in range(first_seat, first_seat + n_seats):
+        f.write("td.m" + str(tid) + "a" + str(seat) + " { color: white; background-color: red; }\n")
     f.close()
 
 def setHTML(mapa):
