@@ -18,7 +18,8 @@ require('../../php-require/mysql-elfollon.php');
 <style>
 body {
   background-image: url('img/bg.jpg');
-  background-color: rgba(255,255,255,0.6);
+  #background-size: contain;
+  background-color: rgba(255,255,255,0.7);
   background-blend-mode: lighten;
 }
 .text-responsive {
@@ -64,8 +65,8 @@ table {
 td {
   border-radius: 10px;
   text-align: center;
+  min-width: 1.25em;
 }
-
 </style>
 
 <?php
