@@ -143,7 +143,7 @@ conn = mysql.connector.connect(user=creds['username'], password=creds['password'
 cursor = conn.cursor()
 mapa = getMap(4, 80)
 
-cursor.execute("SELECT gid, COUNT(*) as count FROM `cena_invitaciones` WHERE gid IS NOT NULL GROUP BY gid ORDER BY count DESC")
+cursor.execute("SELECT gid, COUNT(*) as count FROM `cena_invitaciones` WHERE gid IS NOT NULL GROUP BY gid HAVING count > 1 ORDER BY count DESC")
 rows = cursor.fetchall()
 for gid, n in rows:
     a = getAllocation(cursor, mapa, gid, n)
