@@ -31,7 +31,6 @@ body {
   min-width: 120px;
   box-sizing: border-box;
   transition: opacity 0.2s ease-in, top 0.2s ease-in;
-  border: none;
   cursor: pointer;
   position: relative;
   text-align: center;
