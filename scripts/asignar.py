@@ -113,7 +113,7 @@ def getAllocation(cursor, mapa, gid, n_seats):
 
 def setCSS(gid, tid, first_seat, n_seats):
     # Generates the CSS for a group
-    f = open(f'/var/www/elfollon/cena/css/{gid}.css', 'w')
+    f = open(f'../cena/css/{gid}.css', 'w')
     for seat in range(first_seat, first_seat + n_seats):
         f.write("td.m" + str(tid) + "a" + str(seat) + " { color: white; background-color: red; }\n")
     f.close()
@@ -122,7 +122,7 @@ def setHTML(mapa):
     from tabulate import tabulate
     from bs4 import BeautifulSoup
     import re
-    f = open('/var/www/elfollon/cena/mapa.html', 'w')
+    f = open('../cena/mapa.html', 'w')
     f.write("<table>")
     for n in range(1, len(mapa) + 1):
         f.write("<tr><td>Mesa " + str(n) + "</td><td>")
