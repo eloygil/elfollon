@@ -18,7 +18,7 @@ require('../../php-require/mysql-elfollon.php');
 <style>
 body {
   background-image: url('img/bg.jpg');
-  #background-size: contain;
+  background-size: contain;
   background-color: rgba(255,255,255,0.7);
   background-blend-mode: lighten;
 }
