@@ -15,58 +15,7 @@ require('../../php-require/mysql-elfollon.php');
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="manifest" href="/site.webmanifest">
-<style>
-body {
-  background-image: url('img/bg.jpg');
-  background-size: contain;
-  background-color: rgba(255,255,255,0.7);
-  background-blend-mode: lighten;
-}
-.text-responsive {
-  font-size: calc(100% + 1vw + 1vh);
-}
-.btn-whatsapp {
-  background-color: #25d366;
-  opacity: .95;
-  min-width: 120px;
-  box-sizing: border-box;
-  transition: opacity 0.2s ease-in, top 0.2s ease-in;
-  cursor: pointer;
-  position: relative;
-  text-align: center;
-  white-space: nowrap;
-}
-.btn-whatsapp img {
-  margin-top: -2.5px;
-}
-.btn-whatsapp-label {
-  color: #fff;
-}
-
-.social {
-  text-align: center;
-  padding: 0.2em;
-}
-
-h1 {
-  text-align: center;
-  padding: 1em;
-}
-
-hr {
-  padding: 0.2em;
-}
-
-table {
-  margin: 0.25em;
-}
-
-td {
-  border-radius: 10px;
-  text-align: center;
-  min-width: 1.25em;
-}
-</style>
+<link rel="stylesheet" href="css/main.css">
 
 <?php
 $BASE_URL = "https://" . $_SERVER['SERVER_NAME'];
