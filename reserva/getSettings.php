@@ -1,6 +1,8 @@
 <?php
-# Next is 26/07/2025 21:30 CEST time (España Peninsular)
-$date = ['26', '07', '2025', 21, 30];
+$name_event = 'Comida del Follonero'
+$date = ['14', '06', '2025', 14, 00];
+# Next dinner: 26/07/2025 21:30 CEST time (España Peninsular)
+# $date = ['26', '07', '2025', 21, 30];
 [$day_event, $month_event, $year_event, $hour_event, $minute_event] = $date;
 $limitMinutes = 15;
 $hashSize = 40;
@@ -15,6 +17,11 @@ function getLimitMinutes() {
 function getEventDay() {
   global $day_event;
   return $day_event;
+}
+
+function getEventName() {
+  global $name_event;
+  return $name_event;
 }
 
 function getPadding($number, $padding) {

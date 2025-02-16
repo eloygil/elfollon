@@ -7,7 +7,7 @@ require('../../php-require/mysql-elfollon.php');
 
 <html>
 <head>
-<title>Cena Peña El Follón <?php echo getEventYear(); ?></title>
+<title><?php echo getEventName(); ?> - Peña "El Follón" <?php echo getEventYear(); ?></title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
@@ -249,7 +249,7 @@ if ($gid) {
 
 if (!isFrozen()) {
   echo "<hr>";
-  echo "A la hora de la cena cada grupo tendrá un lugar asignado en una mesa.<br>";
+  echo "A la hora de empezar a comer cada grupo tendrá un lugar asignado en una mesa.<br>";
 } elseif (is_null($gid)) {
   echo "No formas parte de ningún grupo de reserva y el plazo está ya cerrado.<br>";
   echo "Por favor, dirígete hacia las mesas destinadas a los socios que acuden sin reserva, allí podréis sentaros libremente como en años anteriores.";
@@ -288,7 +288,7 @@ if ($gid) {
   echo "<div class=\"social\"><a href=\"" . $BASE_URL . "/?crear\" class=\"btn btn-primary\">Crear nuevo grupo</a></div><br>";
 }
 
-echo "Los grupos serán definitivos " . getLimitMinutes() . " minutos antes del comienzo de la cena.<br>";
+echo "Los grupos serán definitivos " . getLimitMinutes() . " minutos antes del comienzo.<br>";
 if (getEventIsToday()) {
   echo "A partir de las " . getMinutesBeforeTime(getPrintableEventTime(), getLimitMinutes()) . "h escanea de nuevo tu QR para ver vuestros asientos.";
 }
