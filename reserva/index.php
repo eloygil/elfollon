@@ -102,7 +102,7 @@ function setGroup($conn, $gid) {
 }
 
 function createGroup($conn) {
-  $new_gid = hash('sha1', 'Cena-El-Follon-' . $_SESSION["uid"] . '-' . date("Y-m-d H:m:s"));
+  $new_gid = hash('sha1', 'El-Follon-' . $_SESSION["uid"] . '-' . date("Y-m-d H:m:s"));
   $conn->begin_transaction();
   try {
     $id = getGroupNewId($conn);
@@ -182,7 +182,7 @@ $gts = getGroupTableSeats($conn, $gid);
 ?>
 </head>
 <body>
-<h1>Cena Peña "El Follón"</h1>
+<h1><?php echo getEventName(); ?> - Peña "El Follón" <?php echo getEventYear(); ?></h1>
 <div class="container">
   <div class="row">
     <div class="col-xs-12">
