@@ -5,6 +5,7 @@ import pytz
 import sys, time
 
 DEBUG = True
+SITE_PATH = '../reserva'
 
 class table(object):
     def __init__(self, n_seats):
@@ -26,7 +27,7 @@ def debug_print(msg, level='DEBUG'):
     if DEBUG:
         print(f"[{level}] {msg}")
 
-def getEventDate(cfg='../cena/getSettings.php'):
+def getEventDate(cfg=SITE_PATH + '/getSettings.php'):
     # The purpose of this function is reading the event date from the PHP config file
     date = []
     f = open(cfg, 'r')
@@ -39,7 +40,7 @@ def getEventDate(cfg='../cena/getSettings.php'):
     print(f'Event date cannot be parsed from {cfg}')
     sys.exit(1)
 
-def getEventLimit(cfg='../cena/getSettings.php'):
+def getEventLimit(cfg=SITE_PATH + '/getSettings.php'):
     # The purpose of this function is reading the event time limit from the PHP config file
     f = open(cfg, 'r')
     for line in f.readlines():
@@ -113,7 +114,7 @@ def getAllocation(cursor, mapa, gid, n_seats):
 
 def setCSS(gid, tid, first_seat, n_seats):
     # Generates the CSS for a group
-    f = open(f'../cena/css/{gid}.css', 'w')
+    f = open(f'{SITE_PATH}/css/{gid}.css', 'w')
     for seat in range(first_seat, first_seat + n_seats):
         f.write("td.m" + str(tid) + "a" + str(seat) + " { color: white; background-color: red; }\n")
     f.close()
@@ -122,7 +123,7 @@ def setHTML(mapa):
     from tabulate import tabulate
     from bs4 import BeautifulSoup
     import re
-    f = open('../cena/mapa.html', 'w')
+    f = open(f'{SITE_PATH}/mapa.html', 'w')
     f.write("<table>")
     for n in range(1, len(mapa) + 1):
         f.write("<tr><td>Mesa " + str(n) + "</td><td>")
