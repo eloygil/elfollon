@@ -107,7 +107,7 @@ def getAllocation(cursor, mapa, gid, n_seats):
         if t.getAvailable() >= n_seats:
             seat = t.setReservation(n_seats)
             # Update MySQL database
-            cursor.execute("UPDATE `cena_grupos` SET mesa=%s, asiento=%s WHERE gid = %s", (preference[i], seat, gid))
+            cursor.execute("UPDATE `grupos` SET mesa=%s, asiento=%s WHERE gid = %s", (preference[i], seat, gid))
             # Generate CSS for group
             setCSS(gid, preference[i], seat, n_seats)
             return preference[i]
@@ -144,7 +144,7 @@ conn = mysql.connector.connect(user=creds['username'], password=creds['password'
 cursor = conn.cursor()
 mapa = getMap(4, 80)
 
-cursor.execute("SELECT gid, COUNT(*) as count FROM `cena_invitaciones` WHERE gid IS NOT NULL GROUP BY gid HAVING count > 1 ORDER BY count DESC")
+cursor.execute("SELECT gid, COUNT(*) as count FROM `invitaciones` WHERE gid IS NOT NULL GROUP BY gid HAVING count > 1 ORDER BY count DESC")
 rows = cursor.fetchall()
 for gid, n in rows:
     a = getAllocation(cursor, mapa, gid, n)

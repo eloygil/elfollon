@@ -31,8 +31,8 @@ except IndexError:
     sys.exit(1)
 
 # Clean invitation and groups database
-cursor.execute("DELETE FROM `cena_invitaciones` WHERE 1")
-cursor.execute("DELETE FROM `cena_grupos` WHERE 1")
+cursor.execute("DELETE FROM `invitaciones` WHERE 1")
+cursor.execute("DELETE FROM `grupos` WHERE 1")
 
 # Generate N new different hashes and insert them into the invitation table
 h = hashlib.new('sha1')
@@ -40,18 +40,18 @@ for i in range(n_inv):
     salt = '-'.join([str(i), str(time.time())])
     seed = "ElFollon" + salt
     h.update(seed.encode())
-    cursor.execute("INSERT INTO `cena_invitaciones` (uid) VALUES (%s)", (h.hexdigest(),))
+    cursor.execute("INSERT INTO `invitaciones` (uid) VALUES (%s)", (h.hexdigest(),))
 conn.commit()
 
 # Check that the inserted number of invitations match the expectations
-cursor.execute("SELECT COUNT(*) FROM `cena_invitaciones`")
+cursor.execute("SELECT COUNT(*) FROM `invitaciones`")
 result = cursor.fetchall()[0][0]
 if n_inv != result:
     print("Generation went wrong; invitations in DB are {result} while we wanted {n_inv}. Try again.")
     sys.exit(1)
 
 # Get invitation hashes sorted from DB to be printed
-cursor.execute("SELECT uid FROM `cena_invitaciones` ORDER BY uid")
+cursor.execute("SELECT uid FROM `invitaciones` ORDER BY uid")
 hashes = []
 for row in cursor.fetchall():
     hashes.append(row[0])

@@ -20,7 +20,7 @@ require('../../php-require/mysql-elfollon.php');
 <?php
 $BASE_URL = "https://" . $_SERVER['SERVER_NAME'];
 function getAssignedGroup($conn) {
-  $stmt = $conn->prepare("SELECT gid FROM cena_invitaciones WHERE uid=?");
+  $stmt = $conn->prepare("SELECT gid FROM invitaciones WHERE uid=?");
   $stmt->bind_param("s", $_SESSION["uid"]);
   $result = $stmt->execute();
   $result = $stmt->get_result();
@@ -31,7 +31,7 @@ function getAssignedGroup($conn) {
 }
 
 function getGroupNumber($conn, $gid) {
-  $stmt = $conn->prepare("SELECT id FROM cena_grupos WHERE gid=?");
+  $stmt = $conn->prepare("SELECT id FROM grupos WHERE gid=?");
   $stmt->bind_param("s", $gid);
   $stmt->execute();
   $result = $stmt->get_result();
@@ -39,7 +39,7 @@ function getGroupNumber($conn, $gid) {
 }
 
 function getGroupSize($conn, $gid) {
-  $stmt = $conn->prepare("SELECT COUNT(*) FROM `cena_invitaciones` WHERE gid=?");
+  $stmt = $conn->prepare("SELECT COUNT(*) FROM `invitaciones` WHERE gid=?");
   $stmt->bind_param("s", $gid);
   $stmt->execute();
   $result = $stmt->get_result();
@@ -47,7 +47,7 @@ function getGroupSize($conn, $gid) {
 }
 
 function getGroupTable($conn, $gid) {
-  $stmt = $conn->prepare("SELECT mesa FROM `cena_grupos` WHERE gid=?");
+  $stmt = $conn->prepare("SELECT mesa FROM `grupos` WHERE gid=?");
   $stmt->bind_param("s", $gid);
   $stmt->execute();
   $result = $stmt->get_result();
@@ -56,7 +56,7 @@ function getGroupTable($conn, $gid) {
 }
 
 function getGroupTableSeats($conn, $gid) {
-  $stmt = $conn->prepare("SELECT asiento FROM `cena_grupos` WHERE gid=?");
+  $stmt = $conn->prepare("SELECT asiento FROM `grupos` WHERE gid=?");
   $stmt->bind_param("s", $gid);
   $stmt->execute();
   $result = $stmt->get_result();
@@ -69,12 +69,12 @@ function getGroupTableSeats($conn, $gid) {
 }
 
 function getGroupNewId($conn) {
-  $max = $conn->query("SELECT MAX(id) FROM `cena_grupos`")->fetch_row()[0];
-  $count = $conn->query("SELECT COUNT(*) FROM `cena_grupos`")->fetch_row()[0];
+  $max = $conn->query("SELECT MAX(id) FROM `grupos`")->fetch_row()[0];
+  $count = $conn->query("SELECT COUNT(*) FROM `grupos`")->fetch_row()[0];
   if ($max == $count) {
     return $max + 1;
   } else {
-    $result = $conn->query("SELECT id FROM `cena_grupos` ORDER BY id ASC");
+    $result = $conn->query("SELECT id FROM `grupos` ORDER BY id ASC");
     $idx = 1;
     while ($id = $result->fetch_row()) {
       if ($idx != $id[0]) {
@@ -96,7 +96,7 @@ function getScanInstructions() {
 }
 
 function setGroup($conn, $gid) {
-  $stmt = $conn->prepare("UPDATE cena_invitaciones SET gid=? WHERE uid=?");
+  $stmt = $conn->prepare("UPDATE invitaciones SET gid=? WHERE uid=?");
   $stmt->bind_param("ss", $gid, $_SESSION["uid"]);
   $result = $stmt->execute();
 }
@@ -107,11 +107,11 @@ function createGroup($conn) {
   try {
     $id = getGroupNewId($conn);
     # Insert new group
-    $stmt = $conn->prepare("INSERT INTO cena_grupos (gid, id) VALUES (?,?)");
+    $stmt = $conn->prepare("INSERT INTO grupos (gid, id) VALUES (?,?)");
     $stmt->bind_param("ss", $new_gid, $id);
     $stmt->execute();
     # Update invitations accordingly
-    $stmt = $conn->prepare("UPDATE cena_invitaciones SET gid=? WHERE uid=?");
+    $stmt = $conn->prepare("UPDATE invitaciones SET gid=? WHERE uid=?");
     $stmt->bind_param("ss", $new_gid, $_SESSION["uid"]);
     $stmt->execute();
     $conn->commit();
@@ -127,12 +127,12 @@ function leaveGroup($conn) {
   $gid = getAssignedGroup($conn);
   if (getGroupSize($conn, $gid) == 1) {
     # Eliminar grupo (foreign key cascading is enabled, no need to explicitly set to NULL)
-    $stmt = $conn->prepare("DELETE FROM cena_grupos WHERE gid=?");
+    $stmt = $conn->prepare("DELETE FROM grupos WHERE gid=?");
     $stmt->bind_param("s", $gid);
     $stmt->execute();
   } else {
     # Eliminar asignación
-    $stmt = $conn->prepare("UPDATE cena_invitaciones SET gid=NULL WHERE uid=?");
+    $stmt = $conn->prepare("UPDATE invitaciones SET gid=NULL WHERE uid=?");
     $stmt->bind_param("s", $_SESSION["uid"]);
     $stmt->execute();
   }
@@ -143,7 +143,7 @@ function getPlural($n) {
 }
 
 function getIsUserInDatabase($conn, $uid) {
-  $stmt = $conn->prepare("SELECT uid, gid FROM cena_invitaciones WHERE uid=?");
+  $stmt = $conn->prepare("SELECT uid, gid FROM invitaciones WHERE uid=?");
   $stmt->bind_param("s", $uid);
   $stmt->execute();
   $result = $stmt->get_result();
@@ -198,10 +198,10 @@ if (!$user_in_db) {
     exit(1);
   }
 } else {
-  $stmt = $conn->prepare("UPDATE cena_invitaciones SET last_access = NOW() WHERE uid=?");
+  $stmt = $conn->prepare("UPDATE invitaciones SET last_access = NOW() WHERE uid=?");
   $stmt->bind_param("s", $uid);
   $stmt->execute();
-  $stmt = $conn->prepare("SELECT label FROM cena_invitaciones WHERE uid=?");
+  $stmt = $conn->prepare("SELECT label FROM invitaciones WHERE uid=?");
   $stmt->bind_param("s", $uid);
   $stmt->execute();
   $label = $stmt->get_result()->fetch_row()[0];
