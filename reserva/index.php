@@ -182,7 +182,7 @@ $gts = getGroupTableSeats($conn, $gid);
 ?>
 </head>
 <body>
-<h1><?php echo getEventName(); ?> - Peña "El Follón" <?php echo getEventYear(); ?></h1>
+<h1><?php echo getEventName(); ?></h1>
 <div class="container">
   <div class="row">
     <div class="col-xs-12">
@@ -249,7 +249,7 @@ if ($gid) {
 
 if (!isFrozen()) {
   echo "<hr>";
-  echo "A la hora de empezar a comer cada grupo tendrá un lugar asignado en una mesa.<br>";
+  echo "A la hora de empezar cada grupo tendrá un lugar asignado en una mesa.<br>";
 } elseif (is_null($gid)) {
   echo "No formas parte de ningún grupo de reserva y el plazo está ya cerrado.<br>";
   echo "Por favor, dirígete hacia las mesas destinadas a los socios que acuden sin reserva, allí podréis sentaros libremente como en años anteriores.";
