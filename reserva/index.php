@@ -195,7 +195,7 @@ $gts = getGroupTableSeats($conn, $gid);
 if (!$uid) {
   echo "<b style=\"color: red;\">ERROR</b>: Invitación no válida.<br>";
   if (!isset($join_gid)) {
-    echo "Por favor, primero escanea el código QR de la invitación para identificarte.<br>";
+    echo "Por favor, primero <b>escanea el código QR</b> de la invitación para identificarte.<br>";
     getScanInstructions();
     exit(1);
   }
