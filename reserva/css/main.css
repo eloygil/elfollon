@@ -3,6 +3,7 @@ body {
   background-size: contain;
   background-color: rgba(255,255,255,0.7);
   background-blend-mode: lighten;
+  color: #0e4c89;
 }
 .text-responsive {
   font-size: calc(100% + 1vw + 1vh);
