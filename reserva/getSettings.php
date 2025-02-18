@@ -1,6 +1,6 @@
 <?php
 $name_event = 'Comida del Follonero';
-$date = ['14', '06', '2025', 14, 00];
+$date = ['19', '02', '2025', 00, 20];
 # Next dinner: 26/07/2025 21:30 CEST time (España Peninsular)
 # $date = ['26', '07', '2025', 21, 30];
 [$day_event, $month_event, $year_event, $hour_event, $minute_event] = $date;
@@ -74,6 +74,7 @@ function getMinutesBeforeTime($base_time, $minutes) {
 function isFrozen() {
   # This event always happens in summer. For simplicity, we assume a fixed
   # two hour difference between UTC and CEST around dinner time.
+  # TO-DO: Do NOT assume all this, fixme.
   $limit_date = getEventDay() . "-" . getEventMonthNumber(1) . "-" . getEventYear() . " " . getMinutesBeforeTime(getEventTime(), getLimitMinutes());
   return time() + 60*60*2 > strtotime($limit_date);
 }
