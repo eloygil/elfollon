@@ -114,7 +114,7 @@ def getAllocation(cursor, mapa, gid, n_seats):
 
 def setCSS(gid, tid, first_seat, n_seats):
     # Generates the CSS for a group
-    f = open(f'{SITE_PATH}/css/{gid}.css', 'w')
+    f = open(f'{SITE_PATH}/css/groups/{gid}.css', 'w')
     for seat in range(first_seat, first_seat + n_seats):
         f.write("td.m" + str(tid) + "a" + str(seat) + " { color: white; background-color: red; }\n")
     f.close()
