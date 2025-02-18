@@ -144,6 +144,9 @@ conn = mysql.connector.connect(user=creds['username'], password=creds['password'
 cursor = conn.cursor()
 mapa = getMap(4, 80)
 
+# Delete all groups with 1 member only
+cursor.execute("DELETE FROM `grupos` WHERE gid IN (SELECT gid FROM `invitaciones` GROUP BY gid HAVING count(*) = 1)")
+# Get group IDs and member count for each of them
 cursor.execute("SELECT gid, COUNT(*) as count FROM `invitaciones` WHERE gid IS NOT NULL GROUP BY gid HAVING count > 1 ORDER BY count DESC")
 rows = cursor.fetchall()
 for gid, n in rows:
