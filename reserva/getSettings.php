@@ -1,6 +1,6 @@
 <?php
 $name_event = 'Comida del Follonero';
-$date = ['19', '02', '2025', 00, 20];
+$date = ['14', '06', '2025', 14, 00];
 # Next dinner: 26/07/2025 21:30 CEST time (España Peninsular)
 # $date = ['26', '07', '2025', 21, 30];
 [$day_event, $month_event, $year_event, $hour_event, $minute_event] = $date;
