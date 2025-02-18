@@ -157,7 +157,6 @@ function getIsUserInDatabase($conn, $uid) {
 # Sanitize inputs and guarantee valid data is received
 $uid = preg_replace('/[^-a-zA-Z0-9_]/', '', filter_input(INPUT_GET, 'invitacion', FILTER_SANITIZE_URL));
 if (strlen($uid) != $hashSize) {
-  var_dump($_SESSION);
   if ($DEBUG) { echo "DEBUG - Wrong invitation hash length, ignoring<br>"; }
   unset($uid);
 }
