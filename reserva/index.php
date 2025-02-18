@@ -1,5 +1,7 @@
 <?php
+session_start();
 $DEBUG = False;
+
 include('../../php-require/phpqrcode.php');
 require('getSettings.php');
 require('../../php-require/mysql-elfollon.php');
@@ -99,6 +101,7 @@ function setGroup($conn, $gid) {
   $stmt = $conn->prepare("UPDATE invitaciones SET gid=? WHERE uid=?");
   $stmt->bind_param("ss", $gid, $_SESSION["uid"]);
   $result = $stmt->execute();
+  $conn->commit();
 }
 
 function createGroup($conn) {
@@ -129,13 +132,13 @@ function leaveGroup($conn) {
     # Eliminar grupo (foreign key cascading is enabled, no need to explicitly set to NULL)
     $stmt = $conn->prepare("DELETE FROM grupos WHERE gid=?");
     $stmt->bind_param("s", $gid);
-    $stmt->execute();
   } else {
     # Eliminar asignación
     $stmt = $conn->prepare("UPDATE invitaciones SET gid=NULL WHERE uid=?");
     $stmt->bind_param("s", $_SESSION["uid"]);
-    $stmt->execute();
   }
+  $stmt->execute();
+  $conn->commit();
 }
 
 function getPlural($n) {
@@ -150,10 +153,11 @@ function getIsUserInDatabase($conn, $uid) {
   return $result->num_rows == 1;
 }
 
-session_start();
+
 # Sanitize inputs and guarantee valid data is received
 $uid = preg_replace('/[^-a-zA-Z0-9_]/', '', filter_input(INPUT_GET, 'invitacion', FILTER_SANITIZE_URL));
 if (strlen($uid) != $hashSize) {
+  var_dump($_SESSION);
   if ($DEBUG) { echo "DEBUG - Wrong invitation hash length, ignoring<br>"; }
   unset($uid);
 }
@@ -163,8 +167,7 @@ if (strlen($join_gid) != $hashSize) {
   unset($join_gid);
 }
 
-$user_in_db = getIsUserInDatabase($conn, $uid);
-if ($user_in_db) {
+if (getIsUserInDatabase($conn, $uid)) {
   $_SESSION["uid"] = $uid;
 }
 if (!isset($uid) and isset($_SESSION["uid"])) {
@@ -190,7 +193,7 @@ $gts = getGroupTableSeats($conn, $gid);
 <b>Lugar</b>: <?php echo getEventLocation(); ?><br>
 
 <?php
-if (!$user_in_db) {
+if (!$uid) {
   echo "<b style=\"color: red;\">ERROR</b>: Invitación no válida.<br>";
   if (!isset($join_gid)) {
     echo "Por favor, primero escanea el código QR de la invitación para identificarte.<br>";
