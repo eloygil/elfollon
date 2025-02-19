@@ -146,11 +146,11 @@ function getPlural($n) {
 }
 
 function getIsUserInDatabase($conn, $uid) {
-  $stmt = $conn->prepare("SELECT uid, gid FROM invitaciones WHERE uid=?");
+  $stmt = $conn->prepare("SELECT uid FROM invitaciones WHERE uid=?");
   $stmt->bind_param("s", $uid);
   $stmt->execute();
   $result = $stmt->get_result();
-  return $result->num_rows == 1;
+  return $result->fetch_row()[0] === $uid;
 }
 
 
