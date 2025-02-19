@@ -5,6 +5,11 @@ $DEBUG = True;
 include('../../php-require/phpqrcode.php');
 require('getSettings.php');
 require('../../php-require/mysql-elfollon.php');
+
+function debugPrint($text) {
+  global $DEBUG;
+  if ($DEBUG) { echo "DEBUG - " . $text; }
+}
 ?>
 
 <html>
@@ -157,21 +162,21 @@ function getIsUserInDatabase($conn, $uid) {
 # Sanitize inputs and guarantee valid data is received
 $uid = preg_replace('/[^-a-zA-Z0-9_]/', '', filter_input(INPUT_GET, 'invitacion', FILTER_SANITIZE_URL));
 if (strlen($uid) != $hashSize) {
-  if ($DEBUG) { echo "DEBUG - Wrong invitation hash length, ignoring<br>"; }
+  debugPrint("Wrong invitation hash length, ignoring<br>");
   unset($uid);
 }
 $join_gid = preg_replace('/[^-a-zA-Z0-9_]/', '', filter_input(INPUT_GET, 'unirse', FILTER_SANITIZE_URL));
 if (strlen($join_gid) != $hashSize) {
-  if ($DEBUG) { echo "DEBUG - Wrong group hash length, ignoring<br>"; }
+  debugPrint("Wrong group hash length, ignoring<br>");
   unset($join_gid);
 }
 
 if (isset($uid) and getIsUserInDatabase($conn, $uid)) {
+  debugPrint("Saving into SESSION uid: " . $uid);
   $_SESSION["uid"] = $uid;
-  if ($DEBUG) { echo "DEBUG - Saving into SESSION uid: " . $uid; }
 } else {
+  debugPrint("Unsetting uid.");
   unset($uid);
-  if ($DEBUG) { echo "DEBUG - Unsetting uid."; }
 }
 if (!isset($uid) and isset($_SESSION["uid"])) {
   $uid = $_SESSION["uid"];
@@ -215,12 +220,9 @@ if (!$uid) {
   echo "<b>Invitación</b>: " . $tag . "<br>";
 }
 
-if ($DEBUG) {
-  echo "DEBUG - <b>uid</b>: " . $uid . "<br>";
-  echo "DEBUG - <b>_SESSION['uid']</b>: " . $_SESSION["uid"] . "<br>";
-  echo "DEBUG - <b>join_gid</b>: " . $join_gid . "<br>";
-}
-
+debugPrint("<b>uid</b>: " . $uid . "<br>");
+debugPrint("<b>_SESSION['uid']</b>: " . $_SESSION["uid"] . "<br>");
+debugPrint("<b>join_gid</b>: " . $join_gid . "<br>");
 
 if (!isset($_SESSION["uid"]) and isset($join_gid)) {
   echo "Escanea el QR de la invitación con la cámara de tu móvil <b>antes</b> de utilizar el enlace para unirte a un grupo.<br>";
