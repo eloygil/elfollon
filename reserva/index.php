@@ -1,6 +1,6 @@
 <?php
 session_start();
-$DEBUG = False;
+$DEBUG = True;
 
 include('../../php-require/phpqrcode.php');
 require('getSettings.php');
@@ -166,8 +166,12 @@ if (strlen($join_gid) != $hashSize) {
   unset($join_gid);
 }
 
-if (getIsUserInDatabase($conn, $uid)) {
+if (isset($uid) and getIsUserInDatabase($conn, $uid)) {
   $_SESSION["uid"] = $uid;
+  if ($DEBUG) { echo "DEBUG - Saving into SESSION uid: " . $uid; }
+} else {
+  unset($uid);
+  if ($DEBUG) { echo "DEBUG - Unsetting uid."; }
 }
 if (!isset($uid) and isset($_SESSION["uid"])) {
   $uid = $_SESSION["uid"];
