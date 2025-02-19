@@ -1,6 +1,6 @@
 <?php
 session_start();
-$DEBUG = True;
+$DEBUG = False;
 
 include('../../php-require/phpqrcode.php');
 require('getSettings.php');
@@ -292,7 +292,7 @@ if ($gid) {
   echo "<a href=\"" . $BASE_URL . "/?abandonar\" class=\"btn btn-danger\">Abandonar</a><br>";
   echo "</div>";
 } else {
-  echo "<b>No formas parte de ningún grupo</b>, puedes unirte a uno existente a través de un enlace o crear uno nuevo.<br>";
+  echo "<b>No formas parte de ningún grupo</b>, puedes unirte a uno existente a través de un enlace o crear uno nuevo e invitar a otros.<br>";
   echo "<div class=\"social\"><a href=\"" . $BASE_URL . "/?crear\" class=\"btn btn-primary\">Crear nuevo grupo</a></div><br>";
 }
 
