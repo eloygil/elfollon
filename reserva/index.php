@@ -206,6 +206,7 @@ if (!$uid) {
   if (!isset($join_gid)) {
     echo "Por favor, primero <b>escanea el código QR</b> de la invitación para identificarte.<br>";
     getScanInstructions();
+    session_destroy();
     exit(1);
   }
 } else {
