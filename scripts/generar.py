@@ -40,7 +40,7 @@ for i in range(n_inv):
     salt = '-'.join([str(i), str(time.time())])
     seed = "ElFollon" + salt
     h.update(seed.encode())
-    cursor.execute("INSERT INTO `invitaciones` (uid) VALUES (%s)", (h.hexdigest(),))
+    cursor.execute("INSERT INTO `invitaciones` (uid, label) VALUES (%s, %s)", (h.hexdigest(),i+1))
 conn.commit()
 
 # Check that the inserted number of invitations match the expectations
