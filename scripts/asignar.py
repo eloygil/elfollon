@@ -124,7 +124,7 @@ def setHTML(mapa):
     from bs4 import BeautifulSoup
     import re
     f = open(f'{SITE_PATH}/mapa.html', 'w')
-    f.write("<table>")
+    f.write("<table style=\"width: 100%;\">")
     for n in range(1, len(mapa) + 1):
         f.write("<tr><td>Mesa " + str(n) + "</td><td>")
         mesa = tabulate([list(range(1, mapa[n].getSize()+1, 2)), list(range(2, mapa[n].getSize()+1, 2))], tablefmt='html')
