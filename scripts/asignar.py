@@ -49,6 +49,11 @@ def getEventLimit(cfg=SITE_PATH + '/getSettings.php'):
 
 def getGreenlight():
     # It will exit in most cases, but let the execution happen if it is time to assign seats
+    try:
+        if sys.argv[1] == "DEBUG":
+            return True
+    except IndexError:
+        pass
     dt = getEventDate() - timedelta(minutes=getEventLimit())  # The calculation happens some minutes before the event
     now = datetime.now(tz=pytz.timezone("Europe/Madrid"))     # Adjusted to Spanish peninsular time
     if now.year != dt.year or now.month != dt.month or now.day != dt.day or now.hour != dt.hour or now.minute != dt.minute:
