@@ -3,8 +3,8 @@ session_start();
 $DEBUG = False;
 
 include('../../php-require/phpqrcode.php');
-require('getSettings.php');
 require('../../php-require/mysql-elfollon.php');
+require('getSettings.php');
 
 function debugPrint($text) {
   global $DEBUG;

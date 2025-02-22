@@ -1,17 +1,31 @@
 <?php
-$name_event = 'Comida del Follonero';
-$date = ['14', '06', '2025', 14, 00];
+$config_db = $conn->query("SELECT * FROM `reserva_config` LIMIT 1")->fetch_row();
 # Next dinner: 26/07/2025 21:30 CEST time (España Peninsular)
-# $date = ['26', '07', '2025', 21, 30];
-[$day_event, $month_event, $year_event, $hour_event, $minute_event] = $date;
-$limitMinutes = 15;
+[$year_event, $month_event, $day_event, $hour_event, $minute_event] = getFromConfigDb('fecha');
 $hashSize = 40;
+
+function getFromConfigDb($value) {
+  # nombre | fecha | limite_min | ubicacion
+  global $config_db;
+  switch($value) {
+    case 'nombre':
+      return $config_db[0];
+    case 'fecha':
+      if (is_null($config_db[1])) {
+        $config_db[1] = date("Y-m-d H:i:s");
+      }
+      return explode(" ", str_replace('-', ' ', str_replace(':', ' ', $config_db[1])));
+    case 'limite_min':
+      return $config_db[2];
+    case 'ubicacion':
+      return $config_db[3];
+  }
+}
 
 function getLimitMinutes() {
   # This is the amount of time before the event starts when the DB stops
   # accepting changes so seats can be assigned
-  global $limitMinutes;
-  return $limitMinutes;
+  return getFromConfigDb('limit_min');
 }
 
 function getEventDay() {
@@ -20,8 +34,7 @@ function getEventDay() {
 }
 
 function getEventName() {
-  global $name_event;
-  return $name_event;
+  return getFromConfigDb('nombre');
 }
 
 function getPadding($number, $padding) {
@@ -48,7 +61,7 @@ function getEventYear() {
 }
 
 function getEventLocation() {
-  return "IES Ega, San Adrián";
+  return getFromConfigDb('ubicacion');
 }
 
 function getPrintableEventTime() {
