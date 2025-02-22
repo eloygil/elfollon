@@ -40,7 +40,7 @@ def getEventDate(cfg=SITE_PATH + '/getSettings.php'):
     print(f'Event date cannot be parsed from {cfg}')
     sys.exit(1)
 
-def getEventLimit(cfg=SITE_PATH + '/getSettings.php'):
+def getEventLimit():
     # The purpose of this function is reading the event time limit from the MySQL database
     return int(cursor.execute("SELECT limit_min FROM `reserva_config` LIMIT 1"))
 
