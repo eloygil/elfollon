@@ -38,7 +38,7 @@ def getEventDate():
 
 def getEventLimit():
     # The purpose of this function is reading the event time limit from the MySQL database
-    cursor.execute("SELECT limit_min FROM `reserva_config` LIMIT 1")
+    cursor.execute("SELECT limite_min FROM `reserva_config` LIMIT 1")
     return int(cursor.fetchone()[0])
 
 def getGreenlight():
