@@ -29,14 +29,12 @@ def debug_print(msg, level='DEBUG'):
 
 def getEventDate():
     # The purpose of this function is reading the event date from the MySQL database
-    for line in f.readlines():
-        if '$date =' in line:
-            for symbol in ["$date = ", "]", "[", ";", "'", " "]:
-                line = line.replace(symbol, "")
-            date = line.strip().split(',')
-            return datetime.strptime('-'.join([date[2], date[1], date[0]]) + ' ' + ':'.join([date[3], date[4]]), "%Y-%m-%d %H:%M")
-    print(f'Event date cannot be obtained from the database')
-    sys.exit(1)
+    try:
+        cursor.execute("SELECT fecha FROM `reserva_config` LIMIT 1")
+        return cursor.fetchone()[0]
+    except e:
+        print(f'Event date cannot be obtained from the database: {e}')
+        sys.exit(1)
 
 def getEventLimit():
     # The purpose of this function is reading the event time limit from the MySQL database
