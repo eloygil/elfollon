@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 from datetime import datetime, timedelta
+from pathlib import Path
 import mysql.connector
 import pytz
 import sys, time
@@ -111,6 +112,7 @@ def getAllocation(cursor, mapa, gid, n_seats):
             # Update MySQL database
             cursor.execute("UPDATE `grupos` SET mesa=%s, asiento=%s WHERE gid = %s", (preference[i], seat, gid))
             # Generate CSS for group
+            Path(SITE_PATH + '/css/groups/').mkdir(parents=True, exist_ok=True)
             setCSS(gid, preference[i], seat, n_seats)
             return preference[i]
 
