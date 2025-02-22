@@ -184,7 +184,7 @@ if (!isset($uid) and isset($_SESSION["uid"])) {
 
 $gid = getAssignedGroup($conn);
 if (!is_null($gid) and isFrozen()) {
-    echo "<link href=\"css/" . $gid . ".css\" rel=\"stylesheet\">";
+    echo "<link href=\"css/groups/" . $gid . ".css\" rel=\"stylesheet\">";
 }
 $gnum = getGroupNumber($conn, $gid);
 $nmm = getGroupSize($conn, $gid);
