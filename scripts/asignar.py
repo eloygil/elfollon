@@ -30,16 +30,14 @@ def debug_print(msg, level='DEBUG'):
 def getEventDate():
     # The purpose of this function is reading the event date from the MySQL database
     try:
-        cursor.execute("SELECT fecha FROM `reserva_config` LIMIT 1")
-        return cursor.fetchone()[0]
+        return getValueFromDb("SELECT fecha FROM `reserva_config` LIMIT 1")
     except e:
         print(f'Event date cannot be obtained from the database: {e}')
         sys.exit(1)
 
 def getEventLimit():
     # The purpose of this function is reading the event time limit from the MySQL database
-    cursor.execute("SELECT limite_min FROM `reserva_config` LIMIT 1")
-    return int(cursor.fetchone()[0])
+    return int(getValueFromDb("SELECT limite_min FROM `reserva_config` LIMIT 1"))
 
 def getGreenlight():
     # It will exit in most cases, but let the execution happen if it is time to assign seats
@@ -72,6 +70,10 @@ def getMySQLCredentials():
                 if '["mysql_' + key + '"] =' in line:
                     creds[key] = line.split("=")[-1].strip().replace("'","").replace(";","")
     return creds
+
+def getValueFromDb(query):
+    cursor.execute(query)
+    return cursor.fetchone()[0]
 
 def getMap(n_std_tables=4, std_size=80):
     # Default map, to be adjusted if not all tables have the same size and are totally empty
