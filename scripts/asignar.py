@@ -3,10 +3,12 @@ from datetime import datetime, timedelta
 from pathlib import Path
 import mysql.connector
 import pytz
-import sys, time
+import sys
+import time
 
 DEBUG = True
 SITE_PATH = '../reserva'
+
 
 class table(object):
     def __init__(self, n_seats):
@@ -24,22 +26,26 @@ class table(object):
         self._used += number
         return seat
 
+
 def debug_print(msg, level='DEBUG'):
     if DEBUG:
         print(f"[{level}] {msg}")
+
 
 def getEventDate():
     # The purpose of this function is reading the event date from the MySQL database
     try:
         date_db = getValueFromDb("SELECT fecha FROM `reserva_config` LIMIT 1")
         return date_db if date_db else datetime.now()
-    except e:
+    except Exception as e:
         print(f'Event date cannot be obtained from the database: {e}')
         sys.exit(1)
+
 
 def getEventLimit():
     # The purpose of this function is reading the event time limit from the MySQL database
     return int(getValueFromDb("SELECT limite_min FROM `reserva_config` LIMIT 1"))
+
 
 def getGreenlight():
     # It will exit in most cases, but let the execution happen if it is time to assign seats
@@ -60,6 +66,7 @@ def getGreenlight():
         exit(0)
     time.sleep(2)
 
+
 def getMySQLCredentials():
     # The purpose of this function is avoiding yet another set of credentials hardcoded in plaintext
     # We are using the ones the website uses, as the source is a PHP file it needs to be parsed
@@ -70,20 +77,23 @@ def getMySQLCredentials():
         for line in f.readlines():
             for key in keys:
                 if '["mysql_' + key + '"] =' in line:
-                    creds[key] = line.split("=")[-1].strip().replace("'","").replace(";","")
+                    creds[key] = line.split("=")[-1].strip().replace("'", "").replace(";", "")
     return creds
+
 
 def getValueFromDb(query):
     cursor.execute(query)
     return cursor.fetchone()[0]
 
+
 def getMap(n_std_tables=4, std_size=80):
     # Default map, to be adjusted if not all tables have the same size and are totally empty
     dimensions = {}
     for i in range(1, n_std_tables+1):
-        dimensions[i] = table(std_size) # All standard tables have, at least, this number of (free) seats
+        dimensions[i] = table(std_size)  # All standard tables have, at least, this number of (free) seats
     # If a pre-reserved, custom, table must be defined it will go here #
     return dimensions
+
 
 def getPreference(mapa, n_seats):
     # We assume we have 50-50 odd and even number groups
@@ -101,6 +111,7 @@ def getPreference(mapa, n_seats):
         preference.append(i)
     return preference
 
+
 def getAllocation(cursor, mapa, gid, n_seats):
     # Assigns the given number of seats to the given group, by preference
     preference = getPreference(mapa, n_seats)
@@ -116,12 +127,14 @@ def getAllocation(cursor, mapa, gid, n_seats):
             setCSS(gid, preference[i], seat, n_seats)
             return preference[i]
 
+
 def setCSS(gid, tid, first_seat, n_seats):
     # Generates the CSS for a group
     f = open(f'{SITE_PATH}/css/groups/{gid}.css', 'w')
     for seat in range(first_seat, first_seat + n_seats):
         f.write("td.m" + str(tid) + "a" + str(seat) + " { color: white; background-color: red; }\n")
     f.close()
+
 
 def setHTML(mapa):
     from tabulate import tabulate
@@ -141,6 +154,7 @@ def setHTML(mapa):
         f.write("</tr>")
     f.write("</table>")
     f.close()
+
 
 creds = getMySQLCredentials()
 conn = mysql.connector.connect(user=creds['username'], password=creds['password'], database=creds['database'])

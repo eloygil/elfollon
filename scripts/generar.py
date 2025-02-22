@@ -4,7 +4,9 @@
 
 import hashlib
 import mysql.connector
-import sys, time
+import sys
+import time
+
 
 def getMySQLCredentials():
     # The purpose of this function is avoiding yet another set of credentials hardcoded in plaintext
@@ -16,8 +18,9 @@ def getMySQLCredentials():
         for line in f.readlines():
             for key in keys:
                 if '["mysql_' + key + '"] =' in line:
-                    creds[key] = line.split("=")[-1].strip().replace("'","").replace(";","")
+                    creds[key] = line.split("=")[-1].strip().replace("'", "").replace(";", "")
     return creds
+
 
 creds = getMySQLCredentials()
 conn = mysql.connector.connect(user=creds['username'], password=creds['password'], database=creds['database'])
@@ -40,7 +43,7 @@ for i in range(n_inv):
     salt = '-'.join([str(i), str(time.time())])
     seed = "ElFollon" + salt
     h.update(seed.encode())
-    cursor.execute("INSERT INTO `invitaciones` (uid, label) VALUES (%s, %s)", (h.hexdigest(),i+1))
+    cursor.execute("INSERT INTO `invitaciones` (uid, label) VALUES (%s, %s)", (h.hexdigest(), i+1))
 conn.commit()
 
 # Check that the inserted number of invitations match the expectations
