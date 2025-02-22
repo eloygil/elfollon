@@ -30,7 +30,8 @@ def debug_print(msg, level='DEBUG'):
 def getEventDate():
     # The purpose of this function is reading the event date from the MySQL database
     try:
-        return getValueFromDb("SELECT fecha FROM `reserva_config` LIMIT 1")
+        date_db = getValueFromDb("SELECT fecha FROM `reserva_config` LIMIT 1")
+        return date_db if date_db else datetime.now()
     except e:
         print(f'Event date cannot be obtained from the database: {e}')
         sys.exit(1)
