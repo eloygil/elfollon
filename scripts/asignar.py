@@ -50,7 +50,7 @@ def getEventLimit(cfg=SITE_PATH + '/getSettings.php'):
 def getGreenlight():
     # It will exit in most cases, but let the execution happen if it is time to assign seats
     try:
-        if sys.argv[1] == "DEBUG":
+        if sys.argv[1] == "force":
             return True
     except IndexError:
         pass
@@ -143,7 +143,7 @@ def setHTML(mapa):
     f.write("</table>")
     f.close()
 
-getGreenlight()
+force = getGreenlight()
 creds = getMySQLCredentials()
 conn = mysql.connector.connect(user=creds['username'], password=creds['password'], database=creds['database'])
 cursor = conn.cursor()
@@ -160,5 +160,8 @@ for gid, n in rows:
 
 # Generate HTML map of tables
 setHTML(mapa)
+
+if force:
+    cursor.execute("UPDATE `reserva_config` SET fecha = NULL WHERE 1")
 
 conn.commit()
