@@ -264,11 +264,12 @@ if (!isFrozen()) {
   echo "Por favor, dirígete hacia las mesas destinadas a los socios que acuden sin reserva, allí podréis sentaros libremente como en años anteriores.";
   exit(0);
 } elseif (!is_null($gt) and !is_null($gts)) {
-  echo "<b>Mesa</b>: " . $gt . "<br>";
+  echo "<b>Mesa</b>: " . $gt . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
   echo "<b>Asiento" . getPlural($nmm) . "</b>: " . $gts[0];
   if ($nmm > 1) { echo "-" . $gts[$nmm-1]; }
   echo "<br><b>Distribución de mesas y asientos</b>:<br>";
   include("mapa.html");
+  echo "Vuestros asientos están señalados en rojo.";
   exit(0);
 } else {
   echo "Las reservas están siendo asignadas, vuelve a comprobarlo escaneando el QR de tu invitación más adelante.";
