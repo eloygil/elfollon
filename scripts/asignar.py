@@ -27,22 +27,21 @@ def debug_print(msg, level='DEBUG'):
     if DEBUG:
         print(f"[{level}] {msg}")
 
-def getEventDate(cfg=SITE_PATH + '/getSettings.php'):
-    # The purpose of this function is reading the event date from the PHP config file
-    date = []
-    f = open(cfg, 'r')
+def getEventDate():
+    # The purpose of this function is reading the event date from the MySQL database
     for line in f.readlines():
         if '$date =' in line:
             for symbol in ["$date = ", "]", "[", ";", "'", " "]:
                 line = line.replace(symbol, "")
             date = line.strip().split(',')
             return datetime.strptime('-'.join([date[2], date[1], date[0]]) + ' ' + ':'.join([date[3], date[4]]), "%Y-%m-%d %H:%M")
-    print(f'Event date cannot be parsed from {cfg}')
+    print(f'Event date cannot be obtained from the database')
     sys.exit(1)
 
 def getEventLimit():
     # The purpose of this function is reading the event time limit from the MySQL database
-    return int(cursor.execute("SELECT limit_min FROM `reserva_config` LIMIT 1"))
+    cursor.execute("SELECT limit_min FROM `reserva_config` LIMIT 1")
+    return int(cursor.fetchone()[0])
 
 def getGreenlight():
     # It will exit in most cases, but let the execution happen if it is time to assign seats
