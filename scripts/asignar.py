@@ -41,11 +41,8 @@ def getEventDate(cfg=SITE_PATH + '/getSettings.php'):
     sys.exit(1)
 
 def getEventLimit(cfg=SITE_PATH + '/getSettings.php'):
-    # The purpose of this function is reading the event time limit from the PHP config file
-    f = open(cfg, 'r')
-    for line in f.readlines():
-        if '$limitMinutes = ' in line:
-            return int(line.replace('$limitMinutes = ','').replace(';','').strip())
+    # The purpose of this function is reading the event time limit from the MySQL database
+    return int(cursor.execute("SELECT limit_min FROM `reserva_config` LIMIT 1"))
 
 def getGreenlight():
     # It will exit in most cases, but let the execution happen if it is time to assign seats
@@ -143,10 +140,10 @@ def setHTML(mapa):
     f.write("</table>")
     f.close()
 
-force = getGreenlight()
 creds = getMySQLCredentials()
 conn = mysql.connector.connect(user=creds['username'], password=creds['password'], database=creds['database'])
 cursor = conn.cursor()
+force = getGreenlight()
 mapa = getMap(4, 80)
 
 # Delete all groups with 1 member only
