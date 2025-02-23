@@ -33,11 +33,27 @@ body {
   padding: 0.2em;
 }
 
-h1 {
-  text-align: center;
-  font-size: calc(1.5em + 1vw);
-  margin-bottom: 0.5em;
+.header-container {
+  display: flex;
+  align-items: center; /* Aligns logos and text vertically */
+  justify-content: center; /* Centers everything */
+  gap: 1vw; /* Adds space between logos and text */
+  width: 100%; /* Uses full width */
   padding: 1em;
+  box-sizing: border-box; /* Prevents padding from affecting width */
+}
+
+h1 {
+  font-size: clamp(2rem, 6vw, 4rem); /* Responsive font size */
+  margin: 0;
+  text-align: center;
+  white-space: nowrap; /* Prevents text from wrapping */
+}
+
+.logo {
+  height: 2em; /* Matches text height dynamically */
+  width: auto; /* Keeps aspect ratio */
+  max-height: 8vh; /* Prevents it from getting too large */
 }
 
 hr {

@@ -189,7 +189,11 @@ $gts = getGroupTableSeats($conn, $gid);
 ?>
 </head>
 <body>
-<h1><?php echo getEventName(); ?></h1>
+<div class="header-container">
+    <img src="img/logo.png" alt="Left Logo" class="logo">
+    <h1><?php echo getEventName(); ?></h1>
+    <img src="img/logo.png" alt="Right Logo" class="logo">
+</div>
 <div class="container">
   <div class="row">
     <div class="col-xs-12">
