@@ -285,7 +285,7 @@ if (!isFrozen()) {
 if ($gid) {
   $url = $BASE_URL . "/?unirse=" . $gid;
   ?>
-  <br>Puedes invitar a unirse a tu grupo a otros mediante un enlace:<br>
+  <br>Puedes invitar a otros a unirse a tu grupo mediante un enlace:<br>
   <div class="social">
   <a href="<?php echo $url; ?>"><div id="TextoACopiar" hidden><?php echo $url; ?></div></a>
   <button id="BotonCopiar" class="btn btn-primary" onclick="copyOnClick()">Copiar enlace</button>
