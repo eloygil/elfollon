@@ -265,7 +265,7 @@ if (!isFrozen()) {
   if ($nmm > 1) { echo "-" . $gts[$nmm-1]; }
   echo "<br><b>Distribución de mesas y asientos</b>:<br>";
   include("mapa.html");
-  echo "Vuestros asientos están señalados en rojo.";
+  echo "Vuestros asientos están señalados en <b style=\"color: red;\">rojo</b>.";
   exit(0);
 } else {
   echo "Las reservas están siendo asignadas, vuelve a comprobarlo escaneando el QR de tu invitación más adelante.";
