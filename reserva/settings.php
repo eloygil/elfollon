@@ -22,6 +22,11 @@ function getFromConfigDb($value) {
   }
 }
 
+function getEventDateAndTime() {
+  global $year_event, $month_event, $day_event, $hour_event, $minute_event;
+  return $year_event . "-" . $month_event . "-" . $day_event . " " . $hour_event . ":" . $minute_event;
+}
+
 function getLimitMinutes() {
   # This is the amount of time before the event starts when the DB stops
   # accepting changes so seats can be assigned
@@ -66,13 +71,6 @@ function getEventLocation() {
 
 function getPrintableEventTime() {
   # Returns the Spanish CEST time value.
-  # For UTC unix time use getEventTime() instead.
-  global $hour_event, $minute_event;
-  return getPadding($hour_event, 2) . ":" . getPadding($minute_event, 2);
-}
-
-function getEventTime() {
-  # We assume local time stored in DB is ok
   global $hour_event, $minute_event;
   return getPadding($hour_event, 2) . ":" . getPadding($minute_event, 2);
 }
@@ -83,26 +81,9 @@ function getMinutesBeforeTime($base_time, $minutes) {
 
 function isFrozen() {
   # Our DB has the event date in 'Europe/Madrid' timezone.
-  #$limit_date = getEventDay() . "-" . getEventMonthNumber(1) . "-" . getEventYear() . " " . getMinutesBeforeTime(getEventTime(), getLimitMinutes());
-  $server_tz = new DateTimeZone('UTC');
-  $event_tz = new DateTimeZone('Europe/Madrid');
-  $nowTime = new DateTime('now', $server_tz);
-  $eventLimit = new DateTime(getEventTime(), $event_tz);
-  printVariable("eventLimit");
-  $event_offset = $eventLimit->getOffset() / 3600;
-  $server_offset = $nowTime->getOffset() / 3600;
-  var_dump(getLimitMinutes());
+  $nowTime = new DateTime('now', new DateTimeZone('UTC'));
+  $eventLimit = new DateTime(getEventDateAndTime(), new DateTimeZone('Europe/Madrid'));
   $eventLimit->modify('-' . getLimitMinutes() . ' minutes');
-  $diff = $event_offset - $server_offset;
-  $eventLimit->modify('-' . $diff . ' hours');
-  echo "<br>Offset (event - server) DIFF: ";
-  var_dump($diff);
-  echo "<br>Now: ";
-  var_dump($nowTime);
-  echo "<br>Limit: ";
-  var_dump($eventLimit);
-  echo "<br>diff:";
-  var_dump($nowTime >= $eventLimit);
   return $nowTime >= $eventLimit;
 }
 

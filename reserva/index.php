@@ -1,6 +1,6 @@
 <?php
 session_start();
-$DEBUG = True;
+$DEBUG = False;
 
 include('../../php-require/phpqrcode.php');
 require('../../php-require/mysql-elfollon.php');
