@@ -1,15 +1,11 @@
 <?php
 session_start();
-$DEBUG = False;
+$DEBUG = True;
 
 include('../../php-require/phpqrcode.php');
 require('../../php-require/mysql-elfollon.php');
-require('getSettings.php');
-
-function debugPrint($text) {
-  global $DEBUG;
-  if ($DEBUG) { echo "DEBUG - " . $text; }
-}
+require('helpers.php');
+require('settings.php');
 ?>
 
 <html>
