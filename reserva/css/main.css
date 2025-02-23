@@ -19,9 +19,11 @@ body {
   text-align: center;
   white-space: nowrap;
 }
+
 .btn-whatsapp img {
   margin-top: -2.5px;
 }
+
 .btn-whatsapp-label {
   color: #fff;
 }

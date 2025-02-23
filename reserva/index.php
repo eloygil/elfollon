@@ -286,7 +286,7 @@ if ($gid) {
     }
   </script>
   <?php
-  include("getWhatsapp.php");
+  include("whatsapp.html");
   echo "<a href=\"" . $BASE_URL . "/?abandonar\" class=\"btn btn-danger\">Abandonar</a><br>";
   echo "</div>";
 } else {
