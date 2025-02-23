@@ -21,7 +21,7 @@ require('settings.php');
 <link rel="stylesheet" href="css/main.css">
 
 <?php
-$BASE_URL = "https://" . $_SERVER['SERVER_NAME'];
+$BASE_URL = getProtocol() . "://" . $_SERVER['SERVER_NAME'];
 function getAssignedGroup($conn) {
   $stmt = $conn->prepare("SELECT gid FROM invitaciones WHERE uid=?");
   $stmt->bind_param("s", $_SESSION["uid"]);
@@ -284,10 +284,10 @@ if (!isFrozen()) {
 
 if ($gid) {
   $url = $BASE_URL . "/?unirse=" . $gid;
-  echo "Puedes invitar a unirse a tu grupo a otros mediante un enlace:<br>";
-  echo "<div class=\"social\">";
-  echo "<a href=\"" . $url . "\"><div id=\"TextoACopiar\" hidden>" . $url . "</div></a> ";
   ?>
+  <br>Puedes invitar a unirse a tu grupo a otros mediante un enlace:<br>
+  <div class="social">
+  <a href="<?php echo $url; ?>"><div id="TextoACopiar" hidden><?php echo $url; ?></div></a>
   <button id="BotonCopiar" class="btn btn-primary" onclick="copyOnClick()">Copiar enlace</button>
   <script type="text/javascript">
     function copyOnClick() {
@@ -300,9 +300,9 @@ if ($gid) {
   <img alt="Compartir enlace en WhatsApp" src="img/whatsapp.svg">
   <span class="btn-whatsapp-label">Compartir</span>
   </div></a>
+  <a href="<?php echo $BASE_URL; ?>/?abandonar" class="btn btn-danger">Abandonar</a><br>
+  </div>
   <?php
-  echo "<a href=\"" . $BASE_URL . "/?abandonar\" class=\"btn btn-danger\">Abandonar</a><br>";
-  echo "</div>";
 } else {
   echo "<b>No formas parte de ningún grupo</b>, puedes unirte a uno existente a través de un enlace o crear uno nuevo e invitar a otros.<br>";
   echo "<div class=\"social\"><a href=\"" . $BASE_URL . "/?crear\" class=\"btn btn-primary\">Crear nuevo grupo</a></div><br>";
