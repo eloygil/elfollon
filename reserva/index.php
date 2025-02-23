@@ -90,7 +90,8 @@ function getGroupNewId($conn) {
 }
 
 function getEventIsToday() {
-  return mktime(0,0,0,getEventDay(),getEventMonthNumber(),getEventYear()) < strtotime('now');
+  $date_event = getEventYear() . "-" . getEventMonthNumber() . "-" . getEventDay();
+  return date("Y-m-d") == $date_event;
 }
 
 function getScanInstructions() {
@@ -259,6 +260,11 @@ if ($gid) {
 if (!isFrozen()) {
   echo "<hr>";
   echo "A la hora de empezar cada grupo tendrá un lugar asignado en una mesa.<br>";
+  if (getEventIsToday()) {
+    echo "A partir de las " . getMinutesBeforeTime(getPrintableEventTime(), getLimitMinutes()) . "h escanea de nuevo tu QR para ver vuestros asientos.<br>";
+  } else {
+    echo "Los grupos serán definitivos " . getLimitMinutes() . " minutos antes del comienzo.<br>";
+  }
 } elseif (is_null($gid)) {
   echo "No formas parte de ningún grupo de reserva y el plazo está ya cerrado.<br>";
   echo "Por favor, dirígete hacia las mesas destinadas a los socios que acuden sin reserva, allí podréis sentaros libremente como en años anteriores.";
@@ -278,7 +284,7 @@ if (!isFrozen()) {
 
 if ($gid) {
   $url = $BASE_URL . "/?unirse=" . $gid;
-  echo "Invita a tu grupo a otros mediante un enlace:<br>";
+  echo "Puedes invitar a unirse a tu grupo a otros mediante un enlace:<br>";
   echo "<div class=\"social\">";
   echo "<a href=\"" . $url . "\"><div id=\"TextoACopiar\" hidden>" . $url . "</div></a> ";
   ?>
@@ -296,11 +302,6 @@ if ($gid) {
 } else {
   echo "<b>No formas parte de ningún grupo</b>, puedes unirte a uno existente a través de un enlace o crear uno nuevo e invitar a otros.<br>";
   echo "<div class=\"social\"><a href=\"" . $BASE_URL . "/?crear\" class=\"btn btn-primary\">Crear nuevo grupo</a></div><br>";
-}
-
-echo "Los grupos serán definitivos " . getLimitMinutes() . " minutos antes del comienzo.<br>";
-if (getEventIsToday()) {
-  echo "A partir de las " . getMinutesBeforeTime(getPrintableEventTime(), getLimitMinutes()) . "h escanea de nuevo tu QR para ver vuestros asientos.";
 }
 ?>
     </div>
