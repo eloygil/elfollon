@@ -286,23 +286,45 @@ if ($gid) {
   $url = $BASE_URL . "/?unirse=" . $gid;
   ?>
   <br>Puedes invitar a otros a unirse a tu grupo mediante un enlace:<br>
-  <div class="social">
-  <a href="<?php echo $url; ?>"><div id="TextoACopiar" hidden><?php echo $url; ?></div></a>
+
+<div class="social">
+  <div id="TextoACopiar" hidden><?php echo $url; ?></div>
   <button id="BotonCopiar" class="btn btn-primary" onclick="copyOnClick()">Copiar enlace</button>
-  <script type="text/javascript">
+  <script>
     function copyOnClick() {
-      var codigoACopiar = document.getElementById('TextoACopiar');
-      navigator.clipboard.writeText(codigoACopiar.innerHTML)
+      var codigoACopiar = document.getElementById('TextoACopiar').innerText;
+      var boton = document.getElementById('BotonCopiar');
+
+      navigator.clipboard.writeText(codigoACopiar).then(() => {
+        boton.innerText = "¡Copiado!";
+        boton.classList.add('copiado');
+
+        // Forzar actualización en Safari
+        boton.offsetHeight;
+
+        // Mostrar un popup en iOS si no se ve feedback
+        if (navigator.userAgent.includes("Safari") && !navigator.userAgent.includes("Chrome")) {
+          alert("Enlace copiado al portapapeles.");
+        }
+
+        setTimeout(() => {
+          boton.innerText = "Copiar enlace";
+          boton.classList.remove('copiado');
+        }, 1500);
+      }).catch(err => {
+        console.error("Error al copiar: ", err);
+        alert("Hubo un problema al copiar el enlace.");
+      });
     }
   </script>
-  <a href="<?php echo 'whatsapp://send?text=Escanea%20el%20QR%20de%20tu%20invitación%20y%20abre%20este%20enlace%20para%20reservar%20asiento%20juntos%20en%20la%20Peña%20&ldquo;El%20Follón&rdquo;:%20' . $url; ?>" role="button">
-  <div class="btn btn-success btn-whatsapp" data-network="whatsapp" style="display: inline-block;">
-  <img alt="Compartir enlace en WhatsApp" src="img/whatsapp.svg">
-  <span class="btn-whatsapp-label">Compartir</span>
-  </div></a>
-  <a href="<?php echo $BASE_URL; ?>/?abandonar" class="btn btn-danger">Abandonar</a><br>
-  </div>
-  <?php } else { ?>
+
+  <a href="whatsapp://send?text=<?php echo urlencode('Escanea el QR de tu invitación y luego únete a mi grupo desde aquí: ' . $url); ?>" class="btn btn-success btn-whatsapp">
+    <img alt="Compartir en WhatsApp" src="img/whatsapp.svg">
+    <span class="btn-whatsapp-label">Compartir</span>
+  </a>
+  <a href="<?php echo $BASE_URL; ?>/?abandonar" class="btn btn-danger">Abandonar</a>
+</div>
+<?php } else { ?>
   <b>No formas parte de ningún grupo</b>, puedes unirte a uno existente a través de un enlace o crear uno nuevo e invitar a otros.<br>
   <div class="social"><a href="<?php echo $BASE_URL; ?>/?crear" class="btn btn-primary">Crear nuevo grupo</a></div><br>
 <?php } ?>

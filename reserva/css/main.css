@@ -69,3 +69,26 @@ td {
   text-align: center;
   min-width: 1.25em;
 }
+
+.social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn {
+  min-width: 150px;
+  padding: 10px;
+  font-size: 1rem;
+  transition: transform 0.1s ease-in-out, background-color 0.3s;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+}
+
+#BotonCopiar.copiado {
+  background-color: #28a745 !important; /* Verde */
+  color: white !important;
+}
