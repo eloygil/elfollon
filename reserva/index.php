@@ -302,12 +302,10 @@ if ($gid) {
   </div></a>
   <a href="<?php echo $BASE_URL; ?>/?abandonar" class="btn btn-danger">Abandonar</a><br>
   </div>
-  <?php
-} else {
-  echo "<b>No formas parte de ningún grupo</b>, puedes unirte a uno existente a través de un enlace o crear uno nuevo e invitar a otros.<br>";
-  echo "<div class=\"social\"><a href=\"" . $BASE_URL . "/?crear\" class=\"btn btn-primary\">Crear nuevo grupo</a></div><br>";
-}
-?>
+  <?php } else { ?>
+  <b>No formas parte de ningún grupo</b>, puedes unirte a uno existente a través de un enlace o crear uno nuevo e invitar a otros.<br>
+  <div class="social"><a href="<?php echo $BASE_URL; ?>/?crear" class="btn btn-primary">Crear nuevo grupo</a></div><br>
+<?php } ?>
     </div>
   </div>
 </div>
