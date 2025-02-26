@@ -1,94 +1,140 @@
+/* Estilos generales */
 body {
-  background-image: url("../img/bg.jpg");
-  background-size: contain;
-  background-color: rgba(255,255,255,0.75);
-  background-blend-mode: lighten;
-  color: #0e4c89;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+  color: #333;
+  margin: 0;
+  padding: 0;
 }
-.text-responsive {
-  font-size: calc(100% + 1vw + 1vh);
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 1rem;
 }
-.btn-whatsapp {
-  background-color: #25d366;
-  opacity: .95;
-  min-width: 120px;
-  box-sizing: border-box;
-  transition: opacity 0.2s ease-in, top 0.2s ease-in;
-  cursor: pointer;
-  position: relative;
+
+/* Encabezado */
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0e4c89;
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  gap: 1rem;
+  flex-wrap: nowrap;
+}
+
+.header-container h1 {
+  font-size: clamp(1.2rem, 4vw, 2rem);
+  margin: 0;
   text-align: center;
+  flex-grow: 1;
   white-space: nowrap;
 }
 
-.btn-whatsapp img {
-  margin-top: -2.5px;
-}
-
-.btn-whatsapp-label {
-  color: #fff;
-}
-
-.social {
-  text-align: center;
-  padding: 0.2em;
-}
-
-.header-container {
-  display: flex;
-  align-items: center; /* Aligns logos and text vertically */
-  justify-content: center; /* Centers everything */
-  gap: 1vw; /* Adds space between logos and text */
-  width: 100%; /* Uses full width */
-  padding: 1em;
-  box-sizing: border-box; /* Prevents padding from affecting width */
-}
-
-h1 {
-  font-size: clamp(2rem, 6vw, 4rem); /* Responsive font size */
-  margin: 0;
-  text-align: center;
-  white-space: nowrap; /* Prevents text from wrapping */
-}
-
 .logo {
-  height: 2em; /* Matches text height dynamically */
-  width: auto; /* Keeps aspect ratio */
-  max-height: 8vh; /* Prevents it from getting too large */
+  height: 2.5rem;
+  width: auto;
 }
 
-hr {
-  padding: 0.2em;
-}
-
-table {
-  margin: 0.25em;
-}
-
-td {
-  border-radius: 10px;
+/* Botones */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  margin: 0.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
   text-align: center;
-  min-width: 1.25em;
+  transition: background 0.3s ease-in-out;
 }
 
+.btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #0056b3;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #a71d2a;
+}
+
+.btn-success {
+  background: #28a745;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #1e7e34;
+}
+
+/* Redes sociales */
 .social {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
-.btn {
-  min-width: 150px;
-  padding: 10px;
-  font-size: 1rem;
-  transition: transform 0.1s ease-in-out, background-color 0.3s;
+.btn-whatsapp {
+  background: #25d366;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
 }
 
-.btn:hover {
-  transform: scale(1.05);
+.btn-whatsapp img {
+  width: 20px;
 }
 
-#BotonCopiar.copiado {
-  background-color: #28a745 !important; /* Verde */
-  color: white !important;
+/* Tablas y contenido */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+td, th {
+  padding: 0.75rem;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+th {
+  background: #0e4c89;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header-container {
+    flex-wrap: wrap;
+    padding: 0.5rem;
+  }
+  .logo {
+    height: 2rem;
+  }
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
 }
