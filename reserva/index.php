@@ -227,8 +227,8 @@ debugPrint("<b>_SESSION['uid']</b>: " . $_SESSION["uid"] . "<br>");
 if (isset($join_gid)) { debugPrint("<b>join_gid</b>: " . $join_gid . "<br>"); }
 
 if (!isset($_SESSION["uid"]) and isset($join_gid)) {
-  echo "Escanea el QR de la invitación con la cámara de tu móvil <b>antes</b> de utilizar el enlace para unirte a un grupo.<br>";
-  echo "Recuerda que debes usar el mismo dispositivo, navegador y sesión (evita usar el modo privado/incógnito)";
+  echo "<p>Escanea el QR de la invitación con la cámara de tu móvil <b>antes</b> de utilizar el enlace para unirte a un grupo.</p>";
+  echo "<p>Recuerda que debes usar el mismo dispositivo, navegador y sesión. Evita el modo privado/incógnito.</p>";
   getScanInstructions();
   exit(1);
 } elseif (isset($_SESSION["uid"]) and isset($join_gid)) {
@@ -259,33 +259,34 @@ if ($gid) {
 
 if (!isFrozen()) {
   echo "<hr>";
-  echo "A la hora de empezar cada grupo tendrá un lugar asignado en una mesa.<br>";
+  echo "<p>A la hora de empezar cada grupo tendrá un lugar asignado en una mesa.</p>";
   if (getEventIsToday()) {
-    echo "<br>A partir de las <b>" . getMinutesBeforeTime(getPrintableEventTime(), getLimitMinutes()) . "h</b> escanea de nuevo tu QR para ver vuestros asientos.<br>";
+    echo "<p>A partir de las <b>" . getMinutesBeforeTime(getPrintableEventTime(), getLimitMinutes()) . "h</b> escanea de nuevo tu QR para ver vuestros asientos.</p>";
   } else {
-    echo "<br>Los grupos serán definitivos <b>" . getLimitMinutes() . " minutos</b> antes del comienzo.<br>";
+    echo "<p>Los grupos serán definitivos <b>" . getLimitMinutes() . " minutos</b> antes del comienzo.</p>";
   }
 } elseif (is_null($gid)) {
-  echo "No formas parte de ningún grupo de reserva y el plazo está ya cerrado.<br>";
-  echo "Por favor, dirígete hacia las mesas destinadas a los socios que acuden sin reserva, allí podréis sentaros libremente como en años anteriores.";
+  echo "<p>No formas parte de ningún grupo de reserva y el plazo está ya cerrado.</p>";
+  echo "<p>Por favor, dirígete hacia las mesas destinadas a los socios que acuden sin reserva, allí podréis sentaros libremente como en años anteriores.</p>";
   exit(0);
 } elseif (!is_null($gt) and !is_null($gts)) {
   echo "<b>Mesa</b>: " . $gt . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
   echo "<b>Asiento" . getPlural($nmm) . "</b>: " . $gts[0];
   if ($nmm > 1) { echo "-" . $gts[$nmm-1]; }
+  echo "<div class=\"distribucion\">";
   echo "<br><b>Distribución de mesas y asientos</b>:<br>";
   include("mapa.html");
-  echo "Vuestros asientos están señalados en <b style=\"color: red;\">rojo</b>.";
+  echo "Vuestros asientos están señalados en <b style=\"color: red;\">rojo</b></div>.";
   exit(0);
 } else {
-  echo "Las reservas están siendo asignadas, vuelve a comprobarlo escaneando el QR de tu invitación más adelante.";
+  echo "<p>Las reservas están siendo asignadas, vuelve a comprobarlo escaneando el QR de tu invitación más adelante.</p>";
   exit(0);
 }
 
 if ($gid) {
   $url = $BASE_URL . "/?unirse=" . $gid;
   ?>
-<br>Puedes invitar a otros a unirse al <b>GRUPO <?php echo $gnum; ?></b>:<br>
+  <p>Puedes invitar a otros a unirse al <b>GRUPO <?php echo $gnum; ?></b>:</p>
 
 <div class="social">
   <div id="TextoACopiar" hidden><?php echo $url; ?></div>
