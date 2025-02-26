@@ -261,9 +261,9 @@ if (!isFrozen()) {
   echo "<hr>";
   echo "A la hora de empezar cada grupo tendrá un lugar asignado en una mesa.<br>";
   if (getEventIsToday()) {
-    echo "A partir de las " . getMinutesBeforeTime(getPrintableEventTime(), getLimitMinutes()) . "h escanea de nuevo tu QR para ver vuestros asientos.<br>";
+    echo "<br>A partir de las <b>" . getMinutesBeforeTime(getPrintableEventTime(), getLimitMinutes()) . "h</b> escanea de nuevo tu QR para ver vuestros asientos.<br>";
   } else {
-    echo "Los grupos serán definitivos " . getLimitMinutes() . " minutos antes del comienzo.<br>";
+    echo "<br>Los grupos serán definitivos <b>" . getLimitMinutes() . " minutos</b> antes del comienzo.<br>";
   }
 } elseif (is_null($gid)) {
   echo "No formas parte de ningún grupo de reserva y el plazo está ya cerrado.<br>";
@@ -285,7 +285,7 @@ if (!isFrozen()) {
 if ($gid) {
   $url = $BASE_URL . "/?unirse=" . $gid;
   ?>
-  <br>Puedes invitar a otros a unirse a tu grupo mediante un enlace:<br>
+<br>Puedes invitar a otros a unirse al <b>GRUPO <?php echo $gnum; ?></b>:<br>
 
 <div class="social">
   <div id="TextoACopiar" hidden><?php echo $url; ?></div>
