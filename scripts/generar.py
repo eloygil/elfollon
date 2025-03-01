@@ -21,6 +21,11 @@ def getMySQLCredentials():
                     creds[key] = line.split("=")[-1].strip().replace("'", "").replace(";", "")
     return creds
 
+def getIsStub():
+    try:
+        return sys.argv[2] == 'stub'
+    except IndexError:
+        return False
 
 creds = getMySQLCredentials()
 conn = mysql.connector.connect(user=creds['username'], password=creds['password'], database=creds['database'])
@@ -37,13 +42,34 @@ except IndexError:
 cursor.execute("DELETE FROM `invitaciones` WHERE 1")
 cursor.execute("DELETE FROM `grupos` WHERE 1")
 
+# If this is a stub run; obtain groups and create them in the DB
+stub_groups = []
+if getIsStub():
+    import random
+    biggest = min(32, n_inv * 0.08)
+    remaining = n_inv
+    stub_gid = 1
+    while remaining > n_inv * 0.10:
+        gsize = random.randint(2, biggest)
+        remaining -= gsize
+        for _ in range(gsize):
+            stub_groups.append(str(stub_gid).zfill(40))
+        cursor.execute("INSERT INTO `grupos` (gid, id) VALUES (%s, %s)", (stub_groups[-1], stub_gid))
+        stub_gid += 1
+
 # Generate N new different hashes and insert them into the invitation table
 h = hashlib.new('sha1')
 for i in range(n_inv):
     salt = '-'.join([str(i), str(time.time())])
     seed = "ElFollon" + salt
     h.update(seed.encode())
-    cursor.execute("INSERT INTO `invitaciones` (uid, label) VALUES (%s, %s)", (h.hexdigest(), i+1))
+    if getIsStub():
+        try:
+            cursor.execute("INSERT INTO `invitaciones` (uid, gid, label) VALUES (%s, %s, %s)", (h.hexdigest(), stub_groups[i], i+1))
+        except IndexError:
+            cursor.execute("INSERT INTO `invitaciones` (uid, label) VALUES (%s, %s)", (h.hexdigest(), i+1))
+    else:
+        cursor.execute("INSERT INTO `invitaciones` (uid, label) VALUES (%s, %s)", (h.hexdigest(), i+1))
 conn.commit()
 
 # Check that the inserted number of invitations match the expectations
