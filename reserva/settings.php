@@ -33,6 +33,11 @@ function getLimitMinutes() {
   return getFromConfigDb('limite_min');
 }
 
+function getPrintableEventDay() {
+  global $day_event;
+  return $day_event + 0;
+}
+
 function getEventDay() {
   global $day_event;
   return $day_event;

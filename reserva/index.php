@@ -198,7 +198,7 @@ $gts = getGroupTableSeats($conn, $gid);
 <div class="container">
   <div class="row">
     <div class="col-xs-12">
-<b>Fecha</b>: <?php echo getEventDay(); ?> de <?php echo getEventMonthText(); ?> de <?php echo getEventYear(); ?> (<?php echo getPrintableEventTime(); ?>h.)<br>
+<b>Fecha</b>: <?php echo getPrintableEventDay(); ?> de <?php echo getEventMonthText(); ?> de <?php echo getEventYear(); ?> (<?php echo getPrintableEventTime(); ?>h.)<br>
 <b>Lugar</b>: <?php echo getEventLocation(); ?><br>
 
 <?php
