@@ -294,46 +294,9 @@ if (!isFrozen()) {
   echo "<div class='divider'></div>";
   echo "<div class='distribucion'>";
   echo "<div class='distribucion-title'>Distribución de mesas y asientos</div>";
-  
-  // Nueva leyenda para asientos en rojo (movida arriba)
-  echo "<div class='asientos-leyenda'><span class='asiento-ejemplo'></span> Tus asientos asignados</div>";
-  
-  // Añadir contenedor con indicador de scroll
-  echo "<div class='mesa-container' id='mesasContainer'>";
   include("mapa.html");
+  echo "<p>Vuestros asientos están señalados en <b style=\"color: red;\">rojo</b>.</p>";
   echo "</div>";
-  echo "<div class='scroll-indicator' id='scrollIndicator'>Desliza ⟷</div>";
-  
-  echo "</div>";
-  
-  // Script para mostrar indicador de scroll solo cuando sea necesario
-  echo "<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const container = document.getElementById('mesasContainer');
-    const indicator = document.getElementById('scrollIndicator');
-    
-    function checkScroll() {
-      if (container.scrollWidth > container.clientWidth) {
-        indicator.style.opacity = '1';
-      } else {
-        indicator.style.opacity = '0';
-        container.classList.add('no-scroll');
-      }
-    }
-    
-    checkScroll();
-    window.addEventListener('resize', checkScroll);
-    
-    container.addEventListener('scroll', function() {
-      // Si está cerca del final, ocultar indicador
-      if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 20) {
-        indicator.style.opacity = '0';
-      } else {
-        indicator.style.opacity = '1';
-      }
-    });
-  });
-  </script>";
 } else {
   echo "<div class='divider'></div>";
   echo "<p>Las reservas están siendo asignadas, vuelve a comprobarlo escaneando el QR de tu invitación más adelante.</p>";
@@ -362,7 +325,6 @@ if ($gid && !isFrozen()) {
     function copyOnClick() {
       var codigoACopiar = document.getElementById('TextoACopiar').innerText;
       var boton = document.getElementById('BotonCopiar');
-      var textoOriginal = boton.innerText;
 
       navigator.clipboard.writeText(codigoACopiar).then(() => {
         boton.innerText = "¡Copiado!";
@@ -374,7 +336,7 @@ if ($gid && !isFrozen()) {
         }
 
         setTimeout(() => {
-          boton.innerText = textoOriginal;
+          boton.innerText = "Copiar enlace";
           boton.classList.remove('copiado');
         }, 1500);
       }).catch(err => {
