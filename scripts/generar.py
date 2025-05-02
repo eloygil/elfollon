@@ -197,7 +197,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # Get invitation hashes sorted from DB to be printed
-    cursor.execute("SELECT uid, label FROM `invitaciones` ORDER BY label")
+    cursor.execute("SELECT uid, label FROM `invitaciones` ORDER BY CAST(label AS UNSIGNED)")
     hashes = []
     labels = []
     for row in cursor.fetchall():
