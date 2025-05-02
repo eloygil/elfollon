@@ -70,8 +70,27 @@ def getGreenlight():
         debug_print("Nothing to do here!")
         exit(0)
 
-def getMap(n_std_tables=4, std_size=80):
-    return {i: Table(std_size) for i in range(1, n_std_tables + 1)}
+def getMap(n_std_tables=5, std_size=100):
+    """
+    Obtiene la configuración de mesas desde la base de datos.
+    Consulta la tabla reserva_mesas para obtener el ID de mesa y el número de asientos disponibles.
+    Retorna un diccionario donde la clave es el ID de la mesa y el valor es un objeto Table.
+    """
+    mapa = {}
+    try:
+        cursor.execute("SELECT id, n_asientos FROM `reserva_mesas` ORDER BY id ASC")
+        for mesa_id, asientos in cursor.fetchall():
+            mapa[mesa_id] = Table(asientos)
+
+        if not mapa:
+            debug_print("No se encontraron mesas en la base de datos. Usando configuración por defecto.", "WARNING")
+            return {i: Table(std_size) for i in range(1, n_std_tables+1)}
+
+        return mapa
+    except Exception as e:
+        debug_print(f"Error al obtener las mesas desde la base de datos: {e}", "ERROR")
+        # En caso de error, devolver una configuración por defecto
+        return {i: Table(std_size) for i in range(1, n_std_tables+1)}
 
 def getAllocation(cursor, mapa, gid, n_seats):
     for tid, t in mapa.items():
