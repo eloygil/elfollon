@@ -5,8 +5,6 @@ import mysql.connector
 import pytz
 import sys
 import time
-import os
-import glob
 
 DEBUG = True
 SITE_PATH = '../reserva'
@@ -101,24 +99,6 @@ def getAllocation(cursor, mapa, gid, n_seats):
             cursor.execute("UPDATE `grupos` SET mesa=%s, asiento=%s WHERE gid = %s", (tid, seat, gid))
             return tid, seat
 
-def cleanCSSDirectory():
-    """
-    Clean all CSS files from previous executions in the css/groups directory
-    """
-    css_dir = f'{SITE_PATH}/css/groups'
-    
-    # Ensure the directory exists
-    os.makedirs(css_dir, exist_ok=True)
-    
-    # Remove all CSS files in the directory
-    css_files = glob.glob(f'{css_dir}/*.css')
-    for file in css_files:
-        try:
-            os.remove(file)
-            debug_print(f"Removed existing CSS file: {file}")
-        except Exception as e:
-            debug_print(f"Error removing CSS file {file}: {e}", "ERROR")
-
 def setGroupCSS(gid, tid, first_seat, n):
     with open(f'{SITE_PATH}/css/groups/{gid}.css', 'w') as f:
         for i in range(n):
@@ -158,9 +138,6 @@ conn = mysql.connector.connect(user=creds['username'], password=creds['password'
 cursor = conn.cursor()
 force = getGreenlight()
 mapa = getMap(3, 40)
-
-# Clean the CSS directory before generating new files
-cleanCSSDirectory()
 
 # Allocate seats for all groups
 groups = getGroups(cursor)
