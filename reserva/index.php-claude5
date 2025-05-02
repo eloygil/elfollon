@@ -4,6 +4,23 @@ $DEBUG = False;
 
 include('../../php-require/phpqrcode.php');
 require('../../php-require/mysql-elfollon.php');
+// Define a special admin hash for viewing all seat assignments
+$ADMIN_HASH = "admin_map_view_4c1d9e1e85f66e56"; // You can change this to any value you prefer
+
+// Add this function after the other helper functions
+function loadAllGroupStyles() {
+  $css_output = "";
+  $css_dir = "css/groups/";
+  if (is_dir($css_dir)) {
+    $files = scandir($css_dir);
+    foreach ($files as $file) {
+      if (pathinfo($file, PATHINFO_EXTENSION) === "css") {
+        $css_output .= file_get_contents($css_dir . $file);
+      }
+    }
+  }
+  echo "<style>" . $css_output . "</style>";
+}
 require('helpers.php');
 require('settings.php');
 ?>
@@ -161,19 +178,6 @@ function getIsUserInDatabase($conn, $uid) {
   return $result->fetch_row()[0] === $uid;
 }
 
-function isMasterHash($uid) {
-  $masterHash = hash('sha1', 'El-Follon-Admin-' . getAdminSecret());
-  return $uid === $masterHash;
-}
-
-function loadAllGroupsCSS() {
-  $cssPath = "css/groups/";
-  $groupFiles = glob($cssPath . "*.css");
-  foreach ($groupFiles as $file) {
-    echo "<link href=\"" . $file . "\" rel=\"stylesheet\">";
-  }
-}
-
 
 # Sanitize inputs and guarantee valid data is received
 $uid = preg_replace('/[^-a-zA-Z0-9_]/', '', filter_input(INPUT_GET, 'invitacion', FILTER_SANITIZE_URL));
@@ -187,32 +191,21 @@ if (strlen($join_gid) != $hashSize) {
   unset($join_gid);
 }
 
-$isMaster = false;
-if (isset($uid) && isMasterHash($uid)) {
-  $isMaster = true;
-  $_SESSION["master"] = true;
-} elseif (isset($uid) && getIsUserInDatabase($conn, $uid)) {
+if (isset($uid) and getIsUserInDatabase($conn, $uid)) {
   debugPrint("Saving into SESSION uid: " . $uid);
   $_SESSION["uid"] = $uid;
 } else {
   debugPrint("Unsetting uid.");
   unset($uid);
 }
-
-if (!isset($uid) && isset($_SESSION["uid"])) {
+if (!isset($uid) and isset($_SESSION["uid"])) {
   $uid = $_SESSION["uid"];
 }
 
 $gid = getAssignedGroup($conn);
-if (!is_null($gid) && isFrozen()) {
-  echo "<link href=\"css/groups/" . $gid . ".css\" rel=\"stylesheet\">";
+if (!is_null($gid) and isFrozen()) {
+    echo "<link href=\"css/groups/" . $gid . ".css\" rel=\"stylesheet\">";
 }
-
-// For master view, load all group CSS files when time is frozen
-if ($isMaster && isFrozen()) {
-  loadAllGroupsCSS();
-}
-
 $gnum = getGroupNumber($conn, $gid);
 $nmm = getGroupSize($conn, $gid);
 $gt = getGroupTable($conn, $gid);
@@ -238,9 +231,7 @@ $gts = getGroupTableSeats($conn, $gid);
       </div>
 
 <?php
-if ($isMaster) {
-  echo "<div class='info-row'><span class='info-label'>Modo:</span><span class='info-value'>Administrador (vista general)</span></div>";
-} elseif (!$uid) {
+if (!$uid) {
   echo "<div class='error-message'>ERROR: Invitación no válida.</div>";
   if (!isset($join_gid)) {
     echo "<p>Por favor, primero <b>escanea el código QR</b> de la invitación para identificarte.</p>";
@@ -264,13 +255,13 @@ debugPrint("<b>uid</b>: " . $uid . "<br>");
 debugPrint("<b>_SESSION['uid']</b>: " . $_SESSION["uid"] . "<br>");
 if (isset($join_gid)) { debugPrint("<b>join_gid</b>: " . $join_gid . "<br>"); }
 
-if (!isset($_SESSION["uid"]) && !$isMaster && isset($join_gid)) {
+if (!isset($_SESSION["uid"]) and isset($join_gid)) {
   echo "<div class='error-message'>Necesitas escanear tu invitación primero</div>";
   echo "<p>Escanea el QR de la invitación con la cámara de tu móvil <b>antes</b> de utilizar el enlace para unirte a un grupo.</p>";
   echo "<p>Recuerda que debes usar el mismo dispositivo, navegador y sesión. Evita el modo privado/incógnito.</p>";
   getScanInstructions();
   exit(1);
-} elseif (isset($_SESSION["uid"]) && isset($join_gid)) {
+} elseif (isset($_SESSION["uid"]) and isset($join_gid)) {
   if ($join_gid != getAssignedGroup($conn)) {
     leaveGroup($conn);
   }
@@ -285,28 +276,25 @@ if (isset($_GET['abandonar'])) {
   header('Location: /');
 }
 
-if ((isset($_GET['crear'])) && (!isFrozen())) {
+if ((isset($_GET['crear'])) and (!isFrozen())) {
   if (is_null(getAssignedGroup($conn))) {
      createGroup($conn);
   }
   header('Location: /');
 }
 
-if ($gid && !$isMaster) {
+if ($gid) {
   echo "<div class='info-row'><span class='info-label'>Grupo:</span><span class='info-value'>#" . $gnum . " (" . $nmm . " miembro" . getPlural($nmm) . ")</span></div>";
 }
 
-if ($isMaster && isFrozen()) {
-  echo "<div class='divider'></div>";
-  echo "<div class='info-row'><span class='info-label'>Estado:</span><span class='info-value'>Vista completa de asientos asignados</span></div>";
-} elseif (isFrozen() && !is_null($gt) && !is_null($gts)) {
+if (isFrozen() and !is_null($gt) and !is_null($gts)) {
   echo "<div class='info-row'><span class='info-label'>Mesa:</span><span class='info-value'>" . $gt . "</span></div>";
   echo "<div class='info-row'><span class='info-label'>Asiento" . getPlural($nmm) . ":</span><span class='info-value'>" . $gts[0];
   if ($nmm > 1) { echo "-" . $gts[$nmm-1]; }
   echo "</span></div>";
 }
 
-if (!$isMaster && !isFrozen()) {
+if (!isFrozen()) {
   echo "<div class='divider'></div>";
   echo "<p>A la hora de empezar cada grupo tendrá un lugar asignado en una mesa.</p>";
   if (getEventIsToday()) {
@@ -314,25 +302,18 @@ if (!$isMaster && !isFrozen()) {
   } else {
     echo "<p>Los grupos serán definitivos <b>" . getLimitMinutes() . " minutos</b> antes del comienzo.</p>";
   }
-} elseif (!$isMaster && is_null($gid)) {
+} elseif (is_null($gid)) {
   echo "<div class='divider'></div>";
   echo "<p>No formas parte de ningún grupo de reserva y el plazo está ya cerrado.</p>";
   echo "<p>Por favor, dirígete hacia las mesas destinadas a los socios que acuden sin reserva, allí podréis sentaros libremente como en años anteriores.</p>";
   exit(0);
-} elseif (($isMaster && isFrozen()) || (!is_null($gt) && !is_null($gts))) {
+} elseif (!is_null($gt) and !is_null($gts)) {
   echo "<div class='divider'></div>";
   echo "<div class='distribucion'>";
-  
-  if ($isMaster) {
-    echo "<div class='distribucion-title'>Distribución general de mesas y asientos</div>";
-  } else {
-    echo "<div class='distribucion-title'>Distribución de mesas y asientos</div>";
-  }
+  echo "<div class='distribucion-title'>Distribución de mesas y asientos</div>";
   
   // Nueva leyenda para asientos en rojo (movida arriba)
-  echo "<div class='asientos-leyenda'><span class='asiento-ejemplo'></span> ";
-  echo $isMaster ? "Todos los asientos asignados" : "Tus asientos asignados";
-  echo "</div>";
+  echo "<div class='asientos-leyenda'><span class='asiento-ejemplo'></span> Tus asientos asignados</div>";
   
   // Añadir contenedor con indicador de scroll
   echo "<div class='mesa-container' id='mesasContainer'>";
@@ -376,7 +357,7 @@ if (!$isMaster && !isFrozen()) {
   exit(0);
 }
 
-if ($gid && !isFrozen() && !$isMaster) {
+if ($gid && !isFrozen()) {
   $url = $BASE_URL . "/?unirse=" . $gid;
   ?>
   <div class="divider"></div>
@@ -419,7 +400,7 @@ if ($gid && !isFrozen() && !$isMaster) {
       });
     }
   </script>
-<?php } elseif (!$isMaster && !$gid && !isFrozen()) { ?>
+<?php } elseif (!$gid && !isFrozen()) { ?>
   <div class="divider"></div>
   <p><b>No formas parte de ningún grupo</b>, puedes unirte a uno existente a través de un enlace o crear uno nuevo e invitar a otros.</p>
   <div class="button-container">

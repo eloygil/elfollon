@@ -92,10 +92,4 @@ function isFrozen() {
   return $nowTime >= $eventLimit;
 }
 
-function getAdminSecret() {
-  // This constant value will be used to generate the master hash
-  // Should be consistent but difficult to guess
-  return 'ElFollonSeatingSystem123!';
-}
-
 ?>
