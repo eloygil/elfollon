@@ -118,7 +118,7 @@ creds = getMySQLCredentials()
 conn = mysql.connector.connect(user=creds['username'], password=creds['password'], database=creds['database'])
 cursor = conn.cursor()
 force = getGreenlight()
-mapa = getMap(5, 100)
+mapa = getMap(3, 40)
 
 # Allocate seats for all groups
 groups = getGroups(cursor)
