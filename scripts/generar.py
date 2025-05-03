@@ -63,7 +63,7 @@ def generate_qr_code_with_logo(uid, label):
 
     # Load logo image
     try:
-        logo_path = "../reserva/img/logo.png"
+        logo_path = "../reserva/img/logo-asiento.png"
         logo = Image.open(logo_path)
         logo_width, logo_height = logo.size
 
