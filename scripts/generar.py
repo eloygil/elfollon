@@ -17,6 +17,7 @@ from reportlab.graphics.shapes import Line, Drawing
 from reportlab.graphics import renderPDF
 import os
 from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 
 def getMySQLCredentials():
@@ -40,12 +41,12 @@ def getIsStub():
         return False
 
 
-def generate_qr_code_with_text(uid, label):
-    """Generate QR code with embedded text for a given invitation hash"""
+def generate_qr_code_with_logo(uid, label):
+    """Generate QR code with embedded logo for a given invitation hash"""
     url = f"https://reserva.elfollon.com/?invitacion={uid}"
     qr = qrcode.QRCode(
         version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_M,  # Increased error correction
+        error_correction=qrcode.constants.ERROR_CORRECT_H,  # Highest error correction
         box_size=10,
         border=1,
     )
@@ -53,59 +54,32 @@ def generate_qr_code_with_text(uid, label):
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
     
-    # Convert to PIL Image with text
+    # Convert to PIL Image
     img_pil = img.get_image()
-    
-    # Create a new drawing object
-    draw = ImageDraw.Draw(img_pil)
-    
-    # Try to load a font, fall back to default if not available
-    try:
-        font = ImageFont.truetype("DejaVuSans.ttf", 12)
-    except IOError:
-        font = ImageFont.load_default()
-    
-    # Add "RESERVA" and "ASIENTO" text centered in the QR code
     width, height = img_pil.size
-    text1 = "RESERVA"
-    text2 = "ASIENTO"
     
-    # Calculate text dimensions for centering - handle all Pillow versions
+    # Load logo image
     try:
-        # New method in recent Pillow
-        left1, top1, right1, bottom1 = font.getbbox(text1)
-        w1, h1 = right1 - left1, bottom1 - top1
-        left2, top2, right2, bottom2 = font.getbbox(text2)
-        w2, h2 = right2 - left2, bottom2 - top2
-    except AttributeError:
-        try:
-            # Older method
-            w1, h1 = font.getsize(text1)
-            w2, h2 = font.getsize(text2)
-        except:
-            # Fallback with estimation
-            w1, h1 = len(text1) * 7, 12
-            w2, h2 = len(text2) * 7, 12
-    
-    # Position text in the center of the QR code
-    x1 = int((width - w1) / 2)
-    y1 = int((height - h1 - h2 - 2) / 2)  # Adjust for spacing between lines
-    x2 = int((width - w2) / 2)
-    y2 = y1 + h1 + 2  # Space between lines
-    
-    # Calculate rectangle coordinates with padding
-    padding = 2
-    rect_x1 = x1 - padding
-    rect_y1 = y1 - padding
-    rect_x2 = x1 + w1 + padding
-    rect_y2 = y2 + h2 + padding
-    
-    # Draw white rectangle behind text (simple solid white for maximum compatibility)
-    draw.rectangle((rect_x1, rect_y1, rect_x2, rect_y2), fill="white", outline=None)
-    
-    # Draw the text
-    draw.text((x1, y1), text1, fill="black", font=font)
-    draw.text((x2, y2), text2, fill="black", font=font)
+        logo_path = "../reserva/img/logo.png"
+        logo = Image.open(logo_path)
+        
+        # Resize logo to fit in the center of QR code (approximately 25% of the size)
+        logo_size = int(width * 0.25)
+        logo = logo.resize((logo_size, logo_size))
+        
+        # Calculate position to place logo in center
+        pos_x = (width - logo_size) // 2
+        pos_y = (height - logo_size) // 2
+        
+        # Create white background for logo
+        white_box = Image.new('RGBA', (logo_size + 10, logo_size + 10), (255, 255, 255, 255))
+        img_pil.paste(white_box, (pos_x - 5, pos_y - 5), white_box)
+        
+        # Paste logo onto QR code
+        img_pil.paste(logo, (pos_x, pos_y), logo)
+    except Exception as e:
+        # If logo embedding fails, just continue with regular QR code
+        print(f"Warning: Could not embed logo: {e}")
     
     # Create a temporary file path
     img_path = f"temp_qr_{label}.png"
@@ -156,8 +130,8 @@ def create_printable_pdf(hashes, labels):
         x = margin + col * (qr_size + spacing)
         y = page_height - margin - (row + 1) * (qr_size + text_height + spacing)
         
-        # Generate QR code with embedded text
-        img_path, _ = generate_qr_code_with_text(uid, label)
+        # Generate QR code with embedded logo
+        img_path, _ = generate_qr_code_with_logo(uid, label)
         temp_files.append(img_path)
         
         # Draw QR code
