@@ -12,7 +12,11 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.colors import black
+from reportlab.graphics.shapes import Line, Drawing
+from reportlab.graphics import renderPDF
 import os
+from PIL import Image, ImageDraw, ImageFont
 
 
 def getMySQLCredentials():
@@ -36,12 +40,12 @@ def getIsStub():
         return False
 
 
-def generate_qr_code(uid, label):
-    """Generate QR code for a given invitation hash"""
+def generate_qr_code_with_text(uid, label):
+    """Generate QR code with embedded text for a given invitation hash"""
     url = f"https://reserva.elfollon.com/?invitacion={uid}"
     qr = qrcode.QRCode(
         version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        error_correction=qrcode.constants.ERROR_CORRECT_M,  # Increased error correction
         box_size=10,
         border=1,
     )
@@ -49,9 +53,63 @@ def generate_qr_code(uid, label):
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
     
+    # Convert to PIL Image with text
+    img_pil = img.get_image()
+    
+    # Create a new drawing object
+    draw = ImageDraw.Draw(img_pil)
+    
+    # Try to load a font, fall back to default if not available
+    try:
+        font = ImageFont.truetype("DejaVuSans.ttf", 12)
+    except IOError:
+        font = ImageFont.load_default()
+    
+    # Add "RESERVA" and "ASIENTO" text centered in the QR code
+    width, height = img_pil.size
+    text1 = "RESERVA"
+    text2 = "ASIENTO"
+    
+    # Calculate text dimensions for centering - handle all Pillow versions
+    try:
+        # New method in recent Pillow
+        left1, top1, right1, bottom1 = font.getbbox(text1)
+        w1, h1 = right1 - left1, bottom1 - top1
+        left2, top2, right2, bottom2 = font.getbbox(text2)
+        w2, h2 = right2 - left2, bottom2 - top2
+    except AttributeError:
+        try:
+            # Older method
+            w1, h1 = font.getsize(text1)
+            w2, h2 = font.getsize(text2)
+        except:
+            # Fallback with estimation
+            w1, h1 = len(text1) * 7, 12
+            w2, h2 = len(text2) * 7, 12
+    
+    # Position text in the center of the QR code
+    x1 = int((width - w1) / 2)
+    y1 = int((height - h1 - h2 - 2) / 2)  # Adjust for spacing between lines
+    x2 = int((width - w2) / 2)
+    y2 = y1 + h1 + 2  # Space between lines
+    
+    # Calculate rectangle coordinates with padding
+    padding = 2
+    rect_x1 = x1 - padding
+    rect_y1 = y1 - padding
+    rect_x2 = x1 + w1 + padding
+    rect_y2 = y2 + h2 + padding
+    
+    # Draw white rectangle behind text (simple solid white for maximum compatibility)
+    draw.rectangle((rect_x1, rect_y1, rect_x2, rect_y2), fill="white", outline=None)
+    
+    # Draw the text
+    draw.text((x1, y1), text1, fill="black", font=font)
+    draw.text((x2, y2), text2, fill="black", font=font)
+    
     # Create a temporary file path
     img_path = f"temp_qr_{label}.png"
-    img.save(img_path)
+    img_pil.save(img_path)
     return img_path, url
 
 
@@ -61,14 +119,14 @@ def create_printable_pdf(hashes, labels):
     page_width, page_height = A4
     
     # Define sizes and margins
-    margin = 10 * mm  # 10mm margins
-    qr_size = 30 * mm  # QR code size (30mm)
-    text_height = 5 * mm  # Height for text
-    spacing = 2 * mm  # Space between elements
+    margin = 5 * mm  # 5mm margins (reduced from 10mm)
+    qr_size = 20 * mm  # QR code size (reduced from 30mm)
+    text_height = 4 * mm  # Height for label text (reduced)
+    spacing = 1 * mm  # Reduced space between elements
     
     # Calculate how many QR codes fit per row and column
     codes_per_row = int((page_width - 2 * margin) / (qr_size + spacing))
-    codes_per_column = int((page_height - 2 * margin) / (qr_size + 2 * text_height + spacing))
+    codes_per_column = int((page_height - 2 * margin) / (qr_size + text_height + spacing))
     
     # Create PDF
     pdf_filename = "invitaciones_qr.pdf"
@@ -96,22 +154,23 @@ def create_printable_pdf(hashes, labels):
         
         # Calculate x, y coordinates (bottom-left corner)
         x = margin + col * (qr_size + spacing)
-        y = page_height - margin - (row + 1) * (qr_size + 2 * text_height + spacing)
+        y = page_height - margin - (row + 1) * (qr_size + text_height + spacing)
         
-        # Generate QR code
-        img_path, _ = generate_qr_code(uid, label)
+        # Generate QR code with embedded text
+        img_path, _ = generate_qr_code_with_text(uid, label)
         temp_files.append(img_path)
-        
-        # Draw title text "RESERVA ASIENTO"
-        c.setFont(font_name, 8)
-        c.drawCentredString(x + qr_size/2, y + qr_size + text_height/2, "RESERVA ASIENTO")
         
         # Draw QR code
         c.drawImage(img_path, x, y, width=qr_size, height=qr_size)
         
         # Draw label text "#XXXX"
-        c.setFont(font_name, 9)
+        c.setFont(font_name, 8)
         c.drawCentredString(x + qr_size/2, y - text_height/2, f"#{label}")
+        
+        # Draw dotted border around QR code area
+        c.setDash([1, 1], 0)
+        c.rect(x-spacing/2, y-text_height-spacing/2, 
+               qr_size+spacing, qr_size+text_height+spacing, stroke=1, fill=0)
     
     # Save the PDF
     c.save()
