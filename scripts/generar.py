@@ -42,7 +42,10 @@ def getIsStub():
 
 
 def generate_qr_code_with_logo(uid, label):
-    """Generate QR code with embedded logo for a given invitation hash"""
+    """
+    Generate QR code with embedded logo for a given invitation hash
+    Preserves the logo's original aspect ratio while scaling it to fit optimally
+    """
     url = f"https://reserva.elfollon.com/?invitacion={uid}"
     qr = qrcode.QRCode(
         version=1,
@@ -53,34 +56,51 @@ def generate_qr_code_with_logo(uid, label):
     qr.add_data(url)
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
-    
+
     # Convert to PIL Image
     img_pil = img.get_image()
-    width, height = img_pil.size
-    
+    qr_width, qr_height = img_pil.size
+
     # Load logo image
     try:
         logo_path = "../reserva/img/logo.png"
         logo = Image.open(logo_path)
-        
-        # Resize logo to fit in the center of QR code (approximately 25% of the size)
-        logo_size = int(width * 0.25)
-        logo = logo.resize((logo_size, logo_size))
-        
+        logo_width, logo_height = logo.size
+
+        # Calculate the maximum safe size for the logo (approximately 25% of QR code area)
+        # Consider the "quiet zone" - typically 25% of the QR code's width is safe
+        max_size = int(qr_width * 0.25)
+
+        # Determine the scaling factor to maintain aspect ratio
+        # while ensuring the largest dimension doesn't exceed max_size
+        scale_factor = min(max_size / logo_width, max_size / logo_height)
+
+        # Calculate new dimensions
+        new_logo_width = int(logo_width * scale_factor)
+        new_logo_height = int(logo_height * scale_factor)
+
+        # Resize logo with preserved aspect ratio
+        logo = logo.resize((new_logo_width, new_logo_height))
+
         # Calculate position to place logo in center
-        pos_x = (width - logo_size) // 2
-        pos_y = (height - logo_size) // 2
-        
-        # Create white background for logo
-        white_box = Image.new('RGBA', (logo_size + 10, logo_size + 10), (255, 255, 255, 255))
-        img_pil.paste(white_box, (pos_x - 5, pos_y - 5), white_box)
-        
+        pos_x = (qr_width - new_logo_width) // 2
+        pos_y = (qr_height - new_logo_height) // 2
+
+        # Create white background for logo (slightly larger than the logo)
+        padding = 5  # pixels of padding around the logo
+        white_box = Image.new('RGBA',
+                              (new_logo_width + padding*2, new_logo_height + padding*2),
+                              (255, 255, 255, 255))
+
+        # Paste white background
+        img_pil.paste(white_box, (pos_x - padding, pos_y - padding), white_box)
+
         # Paste logo onto QR code
         img_pil.paste(logo, (pos_x, pos_y), logo)
     except Exception as e:
         # If logo embedding fails, just continue with regular QR code
         print(f"Warning: Could not embed logo: {e}")
-    
+
     # Create a temporary file path
     img_path = f"temp_qr_{label}.png"
     img_pil.save(img_path)
