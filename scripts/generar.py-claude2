@@ -204,8 +204,7 @@ if __name__ == "__main__":
     stub_groups = []
     if getIsStub():
         import random
-        # CORRECCIÓN: Convertir 'biggest' a entero para evitar error en random.randint()
-        biggest = min(32, int(n_inv * 0.08))
+        biggest = min(32, n_inv * 0.08)
         remaining = n_inv
         stub_gid = 1
         while remaining > n_inv * 0.10:
