@@ -12,10 +12,11 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.colors import black, gray
+from reportlab.lib.colors import black
 from reportlab.graphics.shapes import Line, Drawing
 from reportlab.graphics import renderPDF
 import os
+from PIL import Image, ImageDraw, ImageFont
 from PIL import Image, ImageDraw, ImageFont
 
 
@@ -50,7 +51,7 @@ def generate_qr_code_with_logo(uid, label):
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_H,  # Highest error correction
         box_size=10,
-        border=0,  # Reduced border to maximize the QR code area
+        border=1,
     )
     qr.add_data(url)
     qr.make(fit=True)
@@ -66,10 +67,12 @@ def generate_qr_code_with_logo(uid, label):
         logo = Image.open(logo_path)
         logo_width, logo_height = logo.size
 
-        # Increased logo size for better readability - now 35% of QR code
-        max_size = int(qr_width * 0.35)
+        # Calculate the maximum safe size for the logo (approximately 25% of QR code area)
+        # Consider the "quiet zone" - typically 25% of the QR code's width is safe
+        max_size = int(qr_width * 0.25)
 
         # Determine the scaling factor to maintain aspect ratio
+        # while ensuring the largest dimension doesn't exceed max_size
         scale_factor = min(max_size / logo_width, max_size / logo_height)
 
         # Calculate new dimensions
@@ -84,7 +87,7 @@ def generate_qr_code_with_logo(uid, label):
         pos_y = (qr_height - new_logo_height) // 2
 
         # Create white background for logo (slightly larger than the logo)
-        padding = 8  # Increased padding for better visibility
+        padding = 5  # pixels of padding around the logo
         white_box = Image.new('RGBA',
                               (new_logo_width + padding*2, new_logo_height + padding*2),
                               (255, 255, 255, 255))
@@ -105,50 +108,19 @@ def generate_qr_code_with_logo(uid, label):
 
 
 def create_printable_pdf(hashes, labels):
-    """Create a printable PDF with QR codes and labels, optimizing space to fit at least 75 codes per page"""
+    """Create a printable PDF with QR codes and labels"""
     # A4 size in mm: 210 x 297
     page_width, page_height = A4
     
-    # Minimal margins to maximize space utilization
-    margin_h = 5 * mm  # Horizontal margin
-    margin_v = 5 * mm  # Vertical margin
+    # Define sizes and margins
+    margin = 5 * mm  # 5mm margins (reduced from 10mm)
+    qr_size = 20 * mm  # QR code size (reduced from 30mm)
+    text_height = 4 * mm  # Height for label text (reduced)
+    spacing = 1 * mm  # Reduced space between elements
     
-    # Calculate available space
-    available_width = page_width - (2 * margin_h)
-    available_height = page_height - (2 * margin_v)
-    
-    # Minimal spacing between elements
-    spacing_h = 1 * mm  # Horizontal spacing between QR codes
-    spacing_v = 1 * mm  # Vertical spacing between QR code cells
-    text_height = 3 * mm  # Height for label text
-    
-    # Calculate optimal grid layout for at least 75 QR codes
-    # We'll try different combinations to find the one that gives largest QR size
-    target_count = 75
-    best_layout = None
-    best_qr_size = 0
-    
-    # Try different grid layouts to find the optimal one
-    for cols in range(5, 11):  # Try from 5 to 10 columns
-        # Calculate rows needed to fit target_count
-        rows = (target_count + cols - 1) // cols  # Ceiling division
-        
-        # Calculate QR size for this layout
-        width_per_qr = (available_width - (cols - 1) * spacing_h) / cols
-        height_available = available_height - rows * (text_height + spacing_v)
-        height_per_qr = height_available / rows
-        
-        # QR codes must be square
-        qr_size = min(width_per_qr, height_per_qr)
-        
-        # If this layout gives bigger QR codes, save it
-        if qr_size > best_qr_size:
-            best_qr_size = qr_size
-            best_layout = (cols, rows)
-    
-    # Use the best layout
-    codes_per_row, codes_per_column = best_layout
-    qr_size = best_qr_size
+    # Calculate how many QR codes fit per row and column
+    codes_per_row = int((page_width - 2 * margin) / (qr_size + spacing))
+    codes_per_column = int((page_height - 2 * margin) / (qr_size + text_height + spacing))
     
     # Create PDF
     pdf_filename = "invitaciones_qr.pdf"
@@ -163,8 +135,6 @@ def create_printable_pdf(hashes, labels):
     
     # Generate and place QR codes
     temp_files = []
-    page_num = 0
-    
     for i, (uid, label) in enumerate(zip(hashes, labels)):
         # Calculate position for this QR code
         page_num = i // (codes_per_row * codes_per_column)
@@ -176,11 +146,9 @@ def create_printable_pdf(hashes, labels):
         if position_on_page == 0 and i > 0:
             c.showPage()
         
-        # Calculate x, y coordinates with equal distribution to fill the page
-        # Center the grid on the page
-        x_offset = margin_h + (available_width - (codes_per_row * qr_size + (codes_per_row - 1) * spacing_h)) / 2
-        x = x_offset + col * (qr_size + spacing_h)
-        y = page_height - margin_v - row * (qr_size + text_height + spacing_v) - qr_size
+        # Calculate x, y coordinates (bottom-left corner)
+        x = margin + col * (qr_size + spacing)
+        y = page_height - margin - (row + 1) * (qr_size + text_height + spacing)
         
         # Generate QR code with embedded logo
         img_path, _ = generate_qr_code_with_logo(uid, label)
@@ -190,13 +158,13 @@ def create_printable_pdf(hashes, labels):
         c.drawImage(img_path, x, y, width=qr_size, height=qr_size)
         
         # Draw label text "#XXXX"
-        c.setFont(font_name, 7)
-        c.drawCentredString(x + qr_size/2, y - text_height + 0.5*mm, f"#{label}")
+        c.setFont(font_name, 8)
+        c.drawCentredString(x + qr_size/2, y - text_height/2, f"#{label}")
         
-        # Draw subtle border with dotted gray lines
-        c.setStrokeColor(gray)
-        c.setDash([1, 2], 0)  # Dotted line pattern
-        c.rect(x, y - text_height, qr_size, qr_size + text_height, stroke=1, fill=0)
+        # Draw dotted border around QR code area
+        c.setDash([1, 1], 0)
+        c.rect(x-spacing/2, y-text_height-spacing/2, 
+               qr_size+spacing, qr_size+text_height+spacing, stroke=1, fill=0)
     
     # Save the PDF
     c.save()
@@ -208,15 +176,9 @@ def create_printable_pdf(hashes, labels):
         except:
             pass
     
-    total_pages = page_num + 1
-    total_codes = len(hashes)
-    codes_per_page = codes_per_row * codes_per_column
-    
     print(f"PDF generado con éxito: {pdf_filename}")
-    print(f"Se han creado {total_codes} códigos QR distribuidos en {total_pages} páginas")
-    print(f"Disposición optimizada: {codes_per_row} códigos por fila, {codes_per_column} filas por página")
-    print(f"Total de {codes_per_page} códigos por página")
-    print(f"Tamaño de cada QR: {qr_size/mm:.1f}mm x {qr_size/mm:.1f}mm")
+    print(f"Se han creado {len(hashes)} códigos QR distribuidos en {page_num + 1} páginas")
+    print(f"Disposición: {codes_per_row} códigos por fila, {codes_per_column} filas por página")
 
 
 # Main script execution
@@ -242,7 +204,7 @@ if __name__ == "__main__":
     stub_groups = []
     if getIsStub():
         import random
-        # Convertir 'biggest' a entero para evitar error en random.randint()
+        # CORRECCIÓN: Convertir 'biggest' a entero para evitar error en random.randint()
         biggest = min(32, int(n_inv * 0.08))
         remaining = n_inv
         stub_gid = 1
