@@ -100,7 +100,7 @@ function getEventIsToday() {
 }
 
 function getScanInstructions() {
-  echo '<div class="scan-instructions"><img src="img/escanear-qr.gif" alt="Instrucciones para escanear QR" class="scan-gif"></div><br>';
+  echo '<div class="scan-instructions"><img src="img/escanear-qr.gif" alt="Instrucciones para escanear QR" class="scan-gif"></div>';
 }
 
 function setGroup($conn, $gid) {
@@ -264,7 +264,6 @@ debugPrint("<b>_SESSION['uid']</b>: " . $_SESSION["uid"] . "<br>");
 if (isset($join_gid)) { debugPrint("<b>join_gid</b>: " . $join_gid . "<br>"); }
 
 if (!isset($_SESSION["uid"]) && !$isMaster && isset($join_gid)) {
-  echo "<div class='error-message'>Necesitas escanear tu invitación primero</div>";
   echo "<p>Escanea el QR de la invitación con la cámara de tu móvil <b>antes</b> de utilizar el enlace para unirte a un grupo.</p>";
   getScanInstructions();
   echo "<p>Recuerda que debes usar el mismo dispositivo, navegador y sesión. Evita el modo privado/incógnito.</p>";
