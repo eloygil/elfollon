@@ -336,6 +336,22 @@ body {
   }
 }
 
+/* Estilos para las instrucciones de escaneo QR */
+.scan-instructions {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: var(--spacing-md) 0;
+  overflow: hidden;
+}
+
+.scan-gif {
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: contain;
+}
+
 @media (min-width: 769px) {
   .button-container {
     justify-content: center;
@@ -343,5 +359,9 @@ body {
   
   .btn {
     flex: 0 1 auto;
+  }
+
+  .scan-gif {
+    max-width: 350px;
   }
 }
