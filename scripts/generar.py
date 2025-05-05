@@ -1,4 +1,23 @@
-#!/usr/bin/python3
+def draw_cutting_grid(c, cols, rows, qr_size, text_height, margin_h, margin_v, spacing_h, spacing_v, page_width, page_height):
+    """Draw cutting grid lines between QR codes instead of around each one"""
+    # Calculate the grid's total size
+    available_width = page_width - (2 * margin_h)
+    x_offset = margin_h + (available_width - (cols * qr_size + (cols - 1) * spacing_h)) / 2
+    
+    # Set line style for cutting guides
+    c.setStrokeColor(gray)
+    c.setDash([2, 2], 0)  # Dotted line pattern
+    
+    # Draw vertical lines between columns (not at edges)
+    for col in range(1, cols):
+        x = x_offset + col * qr_size + (col - 0.5) * spacing_h
+        c.line(x, margin_v, x, page_height - margin_v)
+    
+    # Draw horizontal lines between rows (not at edges)
+    y_start = page_height - margin_v
+    for row in range(1, rows):
+        y = y_start - row * (qr_size + text_height + spacing_v) + spacing_v/2
+        c.line(x_offset, y, x_offset + cols * qr_size + (cols - 1) * spacing_h, y)#!/usr/bin/python3
 # This script cleans the invitation table, then generates new ones
 # and the associated QR codes in a printable format
 
@@ -12,7 +31,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.colors import black, gray
+from reportlab.lib.colors import black, gray, gray
 from reportlab.graphics.shapes import Line, Drawing
 from reportlab.graphics import renderPDF
 import os
@@ -165,6 +184,7 @@ def create_printable_pdf(hashes, labels):
     temp_files = []
     page_num = 0
     
+    # Set up grid properties
     for i, (uid, label) in enumerate(zip(hashes, labels)):
         # Calculate position for this QR code
         page_num = i // (codes_per_row * codes_per_column)
@@ -175,6 +195,15 @@ def create_printable_pdf(hashes, labels):
         # Create a new page if needed
         if position_on_page == 0 and i > 0:
             c.showPage()
+            
+            # Draw the cutting grid lines for the new page (after showing the page)
+            draw_cutting_grid(c, codes_per_row, codes_per_column, qr_size, text_height, 
+                             margin_h, margin_v, spacing_h, spacing_v, page_width, page_height)
+        
+        # If this is the first element on the first page, draw the grid lines
+        if i == 0:
+            draw_cutting_grid(c, codes_per_row, codes_per_column, qr_size, text_height, 
+                             margin_h, margin_v, spacing_h, spacing_v, page_width, page_height)
         
         # Calculate x, y coordinates with equal distribution to fill the page
         # Center the grid on the page
@@ -193,10 +222,7 @@ def create_printable_pdf(hashes, labels):
         c.setFont(font_name, 7)
         c.drawCentredString(x + qr_size/2, y - text_height + 0.5*mm, f"#{label}")
         
-        # Draw subtle border with dotted gray lines
-        c.setStrokeColor(gray)
-        c.setDash([1, 2], 0)  # Dotted line pattern
-        c.rect(x, y - text_height, qr_size, qr_size + text_height, stroke=1, fill=0)
+        # No more individual borders around each QR
     
     # Save the PDF
     c.save()
