@@ -378,7 +378,7 @@ if ($gid && !isFrozen() && !$isMaster) {
   $url = $BASE_URL . "/?unirse=" . $gid;
   ?>
   <div class="divider"></div>
-  <p>Puedes invitar al <b>GRUPO <?php echo $gnum; ?></b> a otros:</p>
+  <p>Puedes invitar al <b>GRUPO #<?php echo $gnum; ?></b> a otros:</p>
 
   <div class="button-container">
     <div id="TextoACopiar" hidden><?php echo $url; ?></div>
