@@ -239,7 +239,7 @@ $gts = getGroupTableSeats($conn, $gid);
 <?php
 if ($isMaster) {
   echo "<div class='info-row'><span class='info-label'>Modo:</span><span class='info-value'>Administrador (vista general)</span></div>";
-} elseif (!$uid) {
+} elseif (!isset($uid)) {
   echo "<div class='error-message'>ERROR: Invitación no válida.</div>";
   if (!isset($join_gid)) {
     echo "<p>Por favor, primero <b>escanea el código QR</b> de la invitación para identificarte.</p>";
