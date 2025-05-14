@@ -48,6 +48,7 @@ function getGroupMembers($conn, $gid) {
   while ($row = $result->fetch_assoc()) {
     $members[] = $row['label'];
   }
+  sort($members);
   return $members;
 }
 
@@ -306,6 +307,49 @@ if ((isset($_GET['crear'])) && (!isFrozen())) {
 
 if ($gid && !$isMaster) {
   echo "<div class='info-row'><span class='info-label'>Grupo:</span><span class='info-value'>#" . $gnum . " (" . $nmm . " miembro" . getPlural($nmm) . ")</span></div>";
+if (getGroupSize($conn, $gid) > 1) {
+  ?>
+  <div class="info-row members-dropdown-container">
+    <div class="dropdown-container">
+      <button class="dropdown-button" onclick="toggleDropdown()">
+        <span>Ver listado de integrantes del grupo</span>
+        <span class="dropdown-icon" id="dropdown-icon">+</span>
+      </button>
+      
+      <div class="dropdown-content" id="dropdown-content">
+        <?php if (empty($gmem) || count(array_filter($gmem, function($item) { return $item !== null; })) === 0): ?>
+          <div class="no-items">No hay miembros disponibles</div>
+        <?php else: ?>
+          <ul class="dropdown-list">
+            <?php foreach ($gmem as $member): ?>
+              <?php if ($member !== null): ?>
+                <li class="dropdown-item"><?php echo "#" . htmlspecialchars($member); ?></li>
+              <?php endif; ?>
+            <?php endforeach; ?>
+          </ul>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function toggleDropdown() {
+      const content = document.getElementById('dropdown-content');
+      const icon = document.getElementById('dropdown-icon');
+      
+      if (content.style.maxHeight) {
+        // Cerrar el desplegable
+        content.style.maxHeight = null;
+        icon.textContent = '+';
+      } else {
+        // Abrir el desplegable
+        content.style.maxHeight = content.scrollHeight + "px";
+        icon.textContent = '-';
+      }
+    }
+  </script>
+  <?php
+}
 }
 
 if ($isMaster && isFrozen()) {
