@@ -38,6 +38,19 @@ function getAssignedGroup($conn) {
   return NULL;
 }
 
+function getGroupMembers($conn, $gid) {
+  if (!$gid) { return []; };
+  $stmt = $conn->prepare("SELECT label FROM invitaciones WHERE gid=?");
+  $stmt->bind_param("s", $gid);
+  $stmt->execute();
+  $result = $stmt->get_result();
+  $members = [];
+  while ($row = $result->fetch_assoc()) {
+    $members[] = $row['label'];
+  }
+  return $members;
+}
+
 function getGroupNumber($conn, $gid) {
   $stmt = $conn->prepare("SELECT id FROM grupos WHERE gid=?");
   $stmt->bind_param("s", $gid);
@@ -213,6 +226,7 @@ if ($isMaster && isFrozen()) {
 }
 
 $gnum = getGroupNumber($conn, $gid);
+$gmem = getGroupMembers($conn, $gid);
 $nmm = getGroupSize($conn, $gid);
 $gt = getGroupTable($conn, $gid);
 $gts = getGroupTableSeats($conn, $gid);
