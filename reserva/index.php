@@ -408,7 +408,7 @@ if ($gid && !$isMaster) {
     echo "<div class='inline-dropdown'>
             <button class='dropdown-button' onclick='toggleDropdown()'>
               <span>Ver</span>
-              <span class='dropdown-icon' id='dropdown-icon'>▼</span>
+              <span class='dropdown-icon' id='dropdown-icon'>+</span>
             </button>
             
             <div class='dropdown-content' id='dropdown-content'>";
@@ -574,11 +574,11 @@ function toggleDropdown() {
   if (content.style.maxHeight) {
     // Cerrar el desplegable
     content.style.maxHeight = null;
-    icon.textContent = '▼';
+    icon.textContent = '+';
   } else {
     // Abrir el desplegable
     content.style.maxHeight = content.scrollHeight + "px";
-    icon.textContent = '▲';
+    icon.textContent = '-';
   }
 }
 
@@ -589,7 +589,7 @@ document.addEventListener('click', function(event) {
   
   if (dropdown && !dropdown.contains(event.target) && content.style.maxHeight) {
     content.style.maxHeight = null;
-    document.getElementById('dropdown-icon').textContent = '▼';
+    document.getElementById('dropdown-icon').textContent = '+';
   }
 });
 </script>
