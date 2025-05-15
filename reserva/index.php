@@ -418,8 +418,13 @@ if ($gid && !$isMaster) {
     } else {
       echo "<ul class='dropdown-list'>";
       foreach ($gmem as $member) {
+	if ($member == $label) {
+	  $you = " (tú)";
+	} else {
+	  $you = "";
+	}
         if ($member !== null) {
-          echo "<li class='dropdown-item'>#" . htmlspecialchars($member) . "</li>";
+          echo "<li class='dropdown-item'>#" . htmlspecialchars($member) . $you . "</li>";
         }
       }
       echo "</ul>";
