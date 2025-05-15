@@ -24,6 +24,98 @@ require('settings.php');
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="stylesheet" href="css/main.css">
+<style>
+/* Estilos para el dropdown de miembros en línea */
+.inline-dropdown {
+  display: inline-flex;
+  align-items: center;
+  margin-left: var(--spacing-xs);
+  position: relative;
+}
+
+.dropdown-button {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--primary-light);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 0.25rem 0.6rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.dropdown-button:hover {
+  background-color: var(--primary-dark);
+}
+
+.dropdown-icon {
+  margin-left: 4px;
+  font-size: 0.85rem;
+  transition: transform 0.3s ease;
+}
+
+/* Contenido desplegable */
+.dropdown-content {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+  background: var(--card-color);
+  border-radius: var(--border-radius);
+  width: 100%;
+  min-width: 160px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease-out;
+}
+
+/* Lista de elementos */
+.dropdown-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dropdown-item {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-bottom: 1px solid var(--border-color);
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+/* Mensaje cuando no hay elementos */
+.no-items {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  color: var(--text-light);
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+/* Estilos responsivos para móviles */
+@media (max-width: 768px) {
+  .dropdown-button {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .dropdown-item {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.8rem;
+  }
+  
+  .dropdown-content {
+    min-width: 140px;
+  }
+}
+</style>
 
 <?php
 $BASE_URL = getProtocol() . "://" . $_SERVER['SERVER_NAME'];
@@ -305,51 +397,40 @@ if ((isset($_GET['crear'])) && (!isFrozen())) {
   header('Location: /');
 }
 
+// Código modificado para mostrar el dropdown en línea con la info del grupo
 if ($gid && !$isMaster) {
-  echo "<div class='info-row'><span class='info-label'>Grupo:</span><span class='info-value'>#" . $gnum . " (" . $nmm . " miembro" . getPlural($nmm) . ")</span></div>";
-if (getGroupSize($conn, $gid) > 1) {
-  ?>
-  <div class="info-row members-dropdown-container">
-    <div class="dropdown-container">
-      <button class="dropdown-button" onclick="toggleDropdown()">
-	<span>Ver miembros</span>
-        <span class="dropdown-icon" id="dropdown-icon">+</span>
-      </button>
-      
-      <div class="dropdown-content" id="dropdown-content">
-        <?php if (empty($gmem) || count(array_filter($gmem, function($item) { return $item !== null; })) === 0): ?>
-          <div class="no-items">No hay miembros disponibles</div>
-        <?php else: ?>
-          <ul class="dropdown-list">
-            <?php foreach ($gmem as $member): ?>
-              <?php if ($member !== null): ?>
-                <li class="dropdown-item"><?php echo "#" . htmlspecialchars($member); ?></li>
-              <?php endif; ?>
-            <?php endforeach; ?>
-          </ul>
-        <?php endif; ?>
-      </div>
-    </div>
-  </div>
+  echo "<div class='info-row'>";
+  echo "<span class='info-label'>Grupo:</span>";
+  echo "<span class='info-value'>#" . $gnum . " (" . $nmm . " miembro" . getPlural($nmm) . ")";
   
-  <script>
-    function toggleDropdown() {
-      const content = document.getElementById('dropdown-content');
-      const icon = document.getElementById('dropdown-icon');
-      
-      if (content.style.maxHeight) {
-        // Cerrar el desplegable
-        content.style.maxHeight = null;
-        icon.textContent = '+';
-      } else {
-        // Abrir el desplegable
-        content.style.maxHeight = content.scrollHeight + "px";
-        icon.textContent = '-';
+  // Solo muestra el dropdown si hay más de un miembro
+  if (getGroupSize($conn, $gid) > 1) {
+    echo "<div class='inline-dropdown'>
+            <button class='dropdown-button' onclick='toggleDropdown()'>
+              <span>Ver</span>
+              <span class='dropdown-icon' id='dropdown-icon'>▼</span>
+            </button>
+            
+            <div class='dropdown-content' id='dropdown-content'>";
+              
+    if (empty($gmem) || count(array_filter($gmem, function($item) { return $item !== null; })) === 0) {
+      echo "<div class='no-items'>No hay miembros disponibles</div>";
+    } else {
+      echo "<ul class='dropdown-list'>";
+      foreach ($gmem as $member) {
+        if ($member !== null) {
+          echo "<li class='dropdown-item'>#" . htmlspecialchars($member) . "</li>";
+        }
       }
+      echo "</ul>";
     }
-  </script>
-  <?php
-}
+    
+    echo "</div>
+          </div>";
+  }
+  
+  echo "</span>";  // Cierre del info-value
+  echo "</div>";   // Cierre del info-row
 }
 
 if ($isMaster && isFrozen()) {
@@ -484,6 +565,34 @@ if ($gid && !isFrozen() && !$isMaster) {
 <?php } ?>
     </div>
   </div>
+
+<script>
+function toggleDropdown() {
+  const content = document.getElementById('dropdown-content');
+  const icon = document.getElementById('dropdown-icon');
+  
+  if (content.style.maxHeight) {
+    // Cerrar el desplegable
+    content.style.maxHeight = null;
+    icon.textContent = '▼';
+  } else {
+    // Abrir el desplegable
+    content.style.maxHeight = content.scrollHeight + "px";
+    icon.textContent = '▲';
+  }
+}
+
+// Cierra el dropdown si se hace clic fuera
+document.addEventListener('click', function(event) {
+  const dropdown = document.querySelector('.inline-dropdown');
+  const content = document.getElementById('dropdown-content');
+  
+  if (dropdown && !dropdown.contains(event.target) && content.style.maxHeight) {
+    content.style.maxHeight = null;
+    document.getElementById('dropdown-icon').textContent = '▼';
+  }
+});
+</script>
 </body>
 </html>
 <?php $conn->close(); ?>

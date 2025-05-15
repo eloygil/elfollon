@@ -366,17 +366,52 @@ body {
   }
 }
 
- */
+*/
+/* Estilos para el dropdown de miembros en línea */
+.inline-dropdown {
+  display: inline-flex;
+  align-items: center;
+  margin-left: var(--spacing-xs);
+  position: relative;
+}
+
+.dropdown-button {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--primary-light);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 0.25rem 0.6rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.dropdown-button:hover {
+  background-color: var(--primary-dark);
+}
+
 .dropdown-icon {
-  font-size: 18px;
-  font-weight: bold;
-  transition: transform 0.3s;
+  margin-left: 4px;
+  font-size: 0.85rem;
+  transition: transform 0.3s ease;
 }
 
 /* Contenido desplegable */
 .dropdown-content {
-  max-height: 0;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+  background: var(--card-color);
+  border-radius: var(--border-radius);
+  width: 100%;
+  min-width: 160px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   overflow: hidden;
+  max-height: 0;
   transition: max-height 0.3s ease-out;
 }
 
@@ -388,9 +423,10 @@ body {
 }
 
 .dropdown-item {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
   border-bottom: 1px solid var(--border-color);
-  text-align: center;
+  text-align: left;
+  font-size: 0.9rem;
 }
 
 .dropdown-item:last-child {
@@ -399,25 +435,25 @@ body {
 
 /* Mensaje cuando no hay elementos */
 .no-items {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
   color: var(--text-light);
   font-style: italic;
+  font-size: 0.9rem;
 }
 
 /* Estilos responsivos para móviles */
 @media (max-width: 768px) {
   .dropdown-button {
-    padding: var(--spacing-xs) var(--spacing-sm);
-    font-size: 14px;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8rem;
   }
 
   .dropdown-item {
     padding: var(--spacing-xs) var(--spacing-sm);
-    font-size: 14px;
+    font-size: 0.8rem;
   }
-}
 
-/* Alineación en el contenedor de información */
-.members-dropdown-container {
-  flex-direction: column;
+  .dropdown-content {
+    min-width: 140px;
+  }
 }
