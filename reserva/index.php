@@ -312,7 +312,7 @@ if (getGroupSize($conn, $gid) > 1) {
   <div class="info-row members-dropdown-container">
     <div class="dropdown-container">
       <button class="dropdown-button" onclick="toggleDropdown()">
-        <span>Ver listado de integrantes del grupo</span>
+	<span>Ver miembros</span>
         <span class="dropdown-icon" id="dropdown-icon">+</span>
       </button>
       
