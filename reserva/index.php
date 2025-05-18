@@ -277,7 +277,7 @@ function isMasterHash($uid) {
 
 function loadAllGroupsCSS() {
   $cssPath = "css/groups/";
-  $groupFiles = glob($cssPath . "*.css");
+  $groupFiles = glob($cssPath . "*-" . getRevision() . ".css");
   foreach ($groupFiles as $file) {
     echo "<link href=\"" . $file . "\" rel=\"stylesheet\">";
   }
