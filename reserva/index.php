@@ -400,6 +400,7 @@ debugPrint("<b>uid</b>: " . $uid . "<br>");
 debugPrint("<b>_SESSION['uid']</b>: " . $_SESSION["uid"] . "<br>");
 if (isset($join_gid)) { debugPrint("<b>join_gid</b>: " . $join_gid . "<br>"); }
 
+if (!isFrozen()) {
 if (!isset($_SESSION["uid"]) && !$isMaster && isset($join_gid)) {
   echo "<p>Escanea el QR de la invitación con la cámara de tu móvil <b>antes</b> de utilizar el enlace para unirte a un grupo.</p>";
   getScanInstructions();
@@ -416,6 +417,7 @@ if (!isset($_SESSION["uid"]) && !$isMaster && isset($join_gid)) {
   setGroup($conn, $join_gid);
   header('Location: /');
   exit;
+}
 }
 
 if (isset($_GET['abandonar'])) {
@@ -494,7 +496,7 @@ if (!$isMaster && !isFrozen()) {
 } elseif (!$isMaster && is_null($gid)) {
   echo "<div class='divider'></div>";
   echo "<p>No formas parte de ningún grupo de reserva y el plazo está ya cerrado.</p>";
-  echo "<p>Por favor, dirígete hacia las mesas destinadas a los socios que acuden sin reserva, allí podréis sentaros libremente como en años anteriores.</p>";
+  echo "<p>Por favor, dirígete hacia la zona destinada a los socios que acuden sin reserva, allí podréis sentaros libremente como en años anteriores.</p>";
   exit(0);
 } elseif (($isMaster && isFrozen()) || (!is_null($gt) && !is_null($gts))) {
   echo "<div class='divider'></div>";
