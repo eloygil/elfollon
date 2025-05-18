@@ -6,6 +6,7 @@ include('../../php-require/phpqrcode.php');
 require('../../php-require/mysql-elfollon.php');
 require('helpers.php');
 require('settings.php');
+$GLOBAL_OVERRIDE=true;  # If true, redirects all QRs to elfollon.com
 ?>
 
 <!DOCTYPE html>
@@ -258,6 +259,14 @@ function getPlural($n) {
   return "";
 }
 
+function checkForOverride() {
+  global $GLOBAL_OVERRIDE;
+  if ($GLOBAL_OVERRIDE) {
+    header('Location: https://elfollon.com/');
+    exit(0);
+  }
+}
+
 function getIsUserInDatabase($conn, $uid) {
   $stmt = $conn->prepare("SELECT uid FROM invitaciones WHERE uid=?");
   $stmt->bind_param("s", $uid);
@@ -265,6 +274,7 @@ function getIsUserInDatabase($conn, $uid) {
   $result = $stmt->get_result();
   if ($result->fetch_row()[0] !== $uid) {
     logWrongAttempt($conn, $uid, "uid not found");
+    checkForOverride();
     return false;
   }
   return true;
