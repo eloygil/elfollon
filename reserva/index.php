@@ -263,7 +263,11 @@ function getIsUserInDatabase($conn, $uid) {
   $stmt->bind_param("s", $uid);
   $stmt->execute();
   $result = $stmt->get_result();
-  return $result->fetch_row()[0] === $uid;
+  if ($result->fetch_row()[0] !== $uid) {
+    logWrongAttempt($conn, $uid, "uid not found");
+    return false;
+  }
+  return true;
 }
 
 function isMasterHash($uid) {
@@ -279,16 +283,24 @@ function loadAllGroupsCSS() {
   }
 }
 
+function logWrongAttempt($conn, $hash, $reason) {
+  if (strlen($hash) == 0) return;
+  $stmt = $conn->prepare("INSERT INTO access_log (hash, reason, ip) VALUES (?,?,?)");
+  $stmt->bind_param("sss", $hash, $reason, getClientIP());
+  $stmt->execute();
+}
 
 # Sanitize inputs and guarantee valid data is received
 $uid = preg_replace('/[^-a-zA-Z0-9_]/', '', filter_input(INPUT_GET, 'invitacion', FILTER_SANITIZE_URL));
 if (strlen($uid) != $hashSize) {
   debugPrint("Wrong invitation hash length, ignoring<br>");
+  logWrongAttempt($conn, $uid, "uid length");
   unset($uid);
 }
 $join_gid = preg_replace('/[^-a-zA-Z0-9_]/', '', filter_input(INPUT_GET, 'unirse', FILTER_SANITIZE_URL));
 if (strlen($join_gid) != $hashSize) {
   debugPrint("Wrong group hash length, ignoring<br>");
+  logWrongAttempt($conn, $join_gid, "gid length");
   unset($join_gid);
 }
 
@@ -385,8 +397,8 @@ if ($isMaster) {
     exit(1);
   }
 } else {
-  $stmt = $conn->prepare("UPDATE invitaciones SET last_access = NOW() WHERE uid=?");
-  $stmt->bind_param("s", $uid);
+  $stmt = $conn->prepare("UPDATE invitaciones SET last_access = NOW(), last_ip = ? WHERE uid=?");
+  $stmt->bind_param("ss", getClientIP(), $uid);
   $stmt->execute();
   $stmt = $conn->prepare("SELECT label FROM invitaciones WHERE uid=?");
   $stmt->bind_param("s", $uid);
