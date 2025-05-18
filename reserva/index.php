@@ -326,6 +326,36 @@ $gts = getGroupTableSeats($conn, $gid);
 ?>
 </head>
 <body>
+<!-- Añadir justo después de la etiqueta <body> -->
+<?php if (isset($_SESSION["joined_group"]) && $_SESSION["joined_group"] === true): ?>
+  <div id="groupJoinNotification" class="notification">
+    <div class="notification-content">
+      <strong>¡Te has unido al grupo #<?php echo $_SESSION["joined_group_id"]; ?>!</strong>
+      <div>Actualmente hay <?php echo $_SESSION["joined_group_size"]; ?> miembro<?php echo getPlural($_SESSION["joined_group_size"]); ?> en este grupo.</div>
+    </div>
+    <button class="notification-close" onclick="closeNotification()">×</button>
+  </div>
+
+  <script>
+    function closeNotification() {
+      const notification = document.getElementById('groupJoinNotification');
+      notification.style.animation = 'fadeOut 0.5s ease forwards';
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 500);
+    }
+
+    // Cerrar automáticamente después de 10 segundos
+    setTimeout(closeNotification, 10000);
+  </script>
+
+  <?php
+  // Eliminar la información de la sesión para que no aparezca en futuras cargas
+  unset($_SESSION["joined_group"]);
+  unset($_SESSION["joined_group_id"]);
+  unset($_SESSION["joined_group_size"]);
+  ?>
+<?php endif; ?>
   <div class="header-container">
     <img src="img/logo.png" alt="Logo El Follón" class="logo">
     <h1><?php echo getEventName(); ?></h1>
@@ -379,8 +409,13 @@ if (!isset($_SESSION["uid"]) && !$isMaster && isset($join_gid)) {
   if ($join_gid != getAssignedGroup($conn)) {
     leaveGroup($conn);
   }
+  // Guardar información para la notificación en la sesión
+  $_SESSION["joined_group"] = true;
+  $_SESSION["joined_group_id"] = getGroupNumber($conn, $join_gid);
+  $_SESSION["joined_group_size"] = getGroupSize($conn, $join_gid);
   setGroup($conn, $join_gid);
   header('Location: /');
+  exit;
 }
 
 if (isset($_GET['abandonar'])) {
