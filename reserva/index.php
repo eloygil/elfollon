@@ -575,6 +575,9 @@ if ($gid && !isFrozen() && !$isMaster) {
   $url = $BASE_URL . "/?unirse=" . $gid;
   ?>
   <div class="divider"></div>
+<?php if ($nmm == 1) { ?>
+  <p>Atención: Eres <b>el único miembro</b> de este grupo.</p>
+<?php } ?>
   <p>Puedes invitar al <b>GRUPO #<?php echo $gnum; ?></b> a otros:</p>
 
   <div class="button-container">
