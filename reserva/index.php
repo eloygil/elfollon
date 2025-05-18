@@ -437,46 +437,45 @@ if ((isset($_GET['crear'])) && (!isFrozen())) {
 if ($gid && !$isMaster) {
   echo "<div class='info-row'>";
   echo "<span class='info-label'>Grupo:</span>";
-  echo "<span class='info-value'>#" . $gnum . " (" . $nmm . " miembro" . getPlural($nmm) . ")";
-  
-  // Solo muestra el dropdown si hay más de un miembro
+  echo "<span class='info-value'>#" . $gnum . " (" . $nmm . " miembro" . getPlural($nmm) . ")</span>";
+
+  // Solo muestra la lista expandible si hay más de un miembro
   if (getGroupSize($conn, $gid) > 1) {
-    echo "<div class='inline-dropdown'>
-            <button class='dropdown-button' onclick='toggleDropdown()'>
-              <span>Ver</span>
-              <span class='dropdown-icon' id='dropdown-icon'>+</span>
+    echo "<div class='members-expandable'>
+            <button class='toggle-button' id='toggleMembersList' aria-expanded='false'>
+              <span>Ver miembros</span>
+              <span class='toggle-icon'>+</span>
             </button>
-            
-            <div class='dropdown-content' id='dropdown-content'>";
-              
+
+            <div class='members-list-container' id='membersListContainer'>";
+
     if (empty($gmem) || count(array_filter($gmem, function($item) { return $item !== null; })) === 0) {
-      echo "<div class='no-items'>No hay miembros disponibles</div>";
+      echo "<div class='no-members'>No hay miembros disponibles</div>";
     } else {
-      echo "<ul class='dropdown-list'>";
+      echo "<ul class='members-list'>";
       foreach ($gmem as $member) {
         if ($member == $label) {
-          $you = " (tú)";
+          $you = " <span class='member-you'>(tú)</span>";
         } else {
           $you = "";
         }
         if ($member !== null) {
           // Verificar si es un número o un nombre
           if (is_numeric($member)) {
-            echo "<li class='dropdown-item'>#" . htmlspecialchars($member) . $you . "</li>";
+            echo "<li class='member-item'>#" . htmlspecialchars($member) . $you . "</li>";
           } else {
             // Es un nombre, mostrarlo sin el '#'
-            echo "<li class='dropdown-item'>" . htmlspecialchars($member) . $you . "</li>";
+            echo "<li class='member-item'>" . htmlspecialchars($member) . $you . "</li>";
           }
         }
       }
       echo "</ul>";
     }
-    
+
     echo "</div>
           </div>";
   }
-  
-  echo "</span>";  // Cierre del info-value
+
   echo "</div>";   // Cierre del info-row
 }
 
@@ -614,50 +613,41 @@ if ($gid && !isFrozen() && !$isMaster) {
   </div>
 
 <script>
-function toggleDropdown() {
-  const content = document.getElementById('dropdown-content');
-  const icon = document.getElementById('dropdown-icon');
-
-  if (content.style.maxHeight) {
-    // Cerrar el desplegable
-    content.style.maxHeight = null;
-    icon.textContent = '+';
-  } else {
-    // Abrir el desplegable
-    content.style.maxHeight = Math.min(content.scrollHeight, 300) + "px"; // Limitar altura máxima
-    icon.textContent = '-';
-
-    // Asegurar que el dropdown no se salga de la ventana
-    const dropdown = document.querySelector('.inline-dropdown');
-    const rect = dropdown.getBoundingClientRect();
-    content = document.getElementById('dropdown-content');
-
-    // Si está muy cerca del borde derecho, alinear a la derecha
-    if (rect.right + content.offsetWidth > window.innerWidth) {
-      content.style.left = 'auto';
-      content.style.right = '0';
-    }
-  }
-}
-
-// Cierra el dropdown si se hace clic fuera
-document.addEventListener('click', function(event) {
-  const dropdown = document.querySelector('.inline-dropdown');
-  const content = document.getElementById('dropdown-content');
-
-  if (dropdown && !dropdown.contains(event.target) && content.style.maxHeight) {
-    content.style.maxHeight = null;
-    document.getElementById('dropdown-icon').textContent = '+';
-  }
-});
-
-// Asegurar que el dropdown se cierre al redimensionar la ventana
-window.addEventListener('resize', function() {
-  const content = document.getElementById('dropdown-content');
-  const icon = document.getElementById('dropdown-icon');
-  if (content && content.style.maxHeight) {
-    content.style.maxHeight = null;
-    if (icon) icon.textContent = '+';
+document.addEventListener('DOMContentLoaded', function() {
+  const toggleButton = document.getElementById('toggleMembersList');
+  const container = document.getElementById('membersListContainer');
+  
+  if (toggleButton && container) {
+    toggleButton.addEventListener('click', function() {
+      // Comprobar el estado actual
+      const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+      
+      // Cambiar el estado
+      if (isExpanded) {
+        toggleButton.setAttribute('aria-expanded', 'false');
+        container.classList.remove('expanded');
+        toggleButton.querySelector('.toggle-icon').textContent = '+';
+        toggleButton.querySelector('span:first-child').textContent = 'Ver miembros';
+      } else {
+        toggleButton.setAttribute('aria-expanded', 'true');
+        container.classList.add('expanded');
+        toggleButton.querySelector('.toggle-icon').textContent = '+';
+        toggleButton.querySelector('span:first-child').textContent = 'Ocultar';
+      }
+    });
+    
+    // Cerrar la lista si se hace clic fuera de ella
+    document.addEventListener('click', function(event) {
+      const isClickInsideComponent = toggleButton.contains(event.target) || 
+                                    container.contains(event.target);
+      
+      if (!isClickInsideComponent && container.classList.contains('expanded')) {
+        toggleButton.setAttribute('aria-expanded', 'false');
+        container.classList.remove('expanded');
+        toggleButton.querySelector('.toggle-icon').textContent = '+';
+        toggleButton.querySelector('span:first-child').textContent = 'Ver miembros';
+      }
+    });
   }
 });
 </script>
