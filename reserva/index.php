@@ -404,7 +404,7 @@ if (!isFrozen()) {
 if (!isset($_SESSION["uid"]) && !$isMaster && isset($join_gid)) {
   echo "<p>Escanea el QR de la invitación con la cámara de tu móvil <b>antes</b> de utilizar el enlace para unirte a un grupo.</p>";
   getScanInstructions();
-  echo "<p>Recuerda que debes usar el mismo dispositivo, navegador y sesión. Evita el modo privado/incógnito.</p>";
+  echo "<p>Recuerda que debes usar el mismo dispositivo, navegador y sesión. Si ya lo has escaneado, comprueba que <b>no utilices el modo privado/incógnito</b>.</p>";
   exit(1);
 } elseif (isset($_SESSION["uid"]) && isset($join_gid)) {
   if ($join_gid != getAssignedGroup($conn)) {
