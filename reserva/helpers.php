@@ -21,4 +21,13 @@ function getProtocol() {
   return 'http';
 }
 
+function getClientIP() {
+    if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+        return $_SERVER['HTTP_CF_CONNECTING_IP'];
+    }
+
+    // Optional fallback to REMOTE_ADDR
+    return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+}
+
 ?>
