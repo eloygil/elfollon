@@ -310,7 +310,7 @@ if (!isset($uid) && isset($_SESSION["uid"])) {
 
 $gid = getAssignedGroup($conn);
 if (!is_null($gid) && isFrozen()) {
-  echo "<link href=\"css/groups/" . $gid . ".css\" rel=\"stylesheet\">";
+  echo "<link href=\"css/groups/" . $gid . "-" . getRevision() . ".css\" rel=\"stylesheet\">";
 }
 
 // For master view, load all group CSS files when time is frozen

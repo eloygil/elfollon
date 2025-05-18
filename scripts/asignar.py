@@ -10,6 +10,7 @@ import glob
 
 DEBUG = True
 SITE_PATH = '../reserva'
+REVISION = datetime.now().strftime("%Y%m%d%H%M%S")
 
 class Table:
     def __init__(self, n_seats):
@@ -120,10 +121,13 @@ def cleanCSSDirectory():
             debug_print(f"Error removing CSS file {file}: {e}", "ERROR")
 
 def setGroupCSS(gid, tid, first_seat, n):
-    with open(f'{SITE_PATH}/css/groups/{gid}.css', 'w') as f:
+    with open(f'{SITE_PATH}/css/groups/{gid}-{REVISION}.css', 'w') as f:
         for i in range(n):
             seat = first_seat + i
             f.write(f".m{tid}a{seat} {{ background-color: red; color: white; }}\n")
+
+def setRevision(cursor):
+    cursor.execute("UPDATE `reserva_config` SET revision = %s WHERE 1", (REVISION,))
 
 def setHTML(mapa):
     with open(f'{SITE_PATH}/mapa.html', 'w') as f:
@@ -168,6 +172,7 @@ for idx, (gid, n) in enumerate(groups):
     tid, first_seat = getAllocation(cursor, mapa, gid, n)
     setGroupCSS(gid, tid, first_seat, n)
 
+setRevision(cursor)
 setHTML(mapa)
 
 if force:

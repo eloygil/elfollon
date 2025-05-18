@@ -5,7 +5,7 @@ $config_db = $conn->query("SELECT * FROM `reserva_config` LIMIT 1")->fetch_row()
 $hashSize = 40;
 
 function getFromConfigDb($value) {
-  # nombre | fecha | limite_min | ubicacion
+  # nombre | fecha | limite_min | ubicacion | revision
   global $config_db;
   switch($value) {
     case 'nombre':
@@ -19,6 +19,8 @@ function getFromConfigDb($value) {
       return $config_db[2];
     case 'ubicacion':
       return $config_db[3];
+    case 'revision':
+      return $config_db[4];
   }
 }
 
@@ -45,6 +47,10 @@ function getEventDay() {
 
 function getEventName() {
   return getFromConfigDb('nombre');
+}
+
+function getRevision() {
+  return getFromConfigDb('revision');
 }
 
 function getPadding($number, $padding) {
