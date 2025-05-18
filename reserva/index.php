@@ -434,7 +434,6 @@ if ((isset($_GET['crear'])) && (!isFrozen())) {
   header('Location: /');
 }
 
-// Código modificado para mostrar el dropdown en línea con la info del grupo
 if ($gid && !$isMaster) {
   echo "<div class='info-row'>";
   echo "<span class='info-label'>Grupo:</span>";
@@ -455,13 +454,19 @@ if ($gid && !$isMaster) {
     } else {
       echo "<ul class='dropdown-list'>";
       foreach ($gmem as $member) {
-	if ($member == $label) {
-	  $you = " (tú)";
-	} else {
-	  $you = "";
-	}
+        if ($member == $label) {
+          $you = " (tú)";
+        } else {
+          $you = "";
+        }
         if ($member !== null) {
-          echo "<li class='dropdown-item'>#" . htmlspecialchars($member) . $you . "</li>";
+          // Verificar si es un número o un nombre
+          if (is_numeric($member)) {
+            echo "<li class='dropdown-item'>#" . htmlspecialchars($member) . $you . "</li>";
+          } else {
+            // Es un nombre, mostrarlo sin el '#'
+            echo "<li class='dropdown-item'>" . htmlspecialchars($member) . $you . "</li>";
+          }
         }
       }
       echo "</ul>";
@@ -612,15 +617,26 @@ if ($gid && !isFrozen() && !$isMaster) {
 function toggleDropdown() {
   const content = document.getElementById('dropdown-content');
   const icon = document.getElementById('dropdown-icon');
-  
+
   if (content.style.maxHeight) {
     // Cerrar el desplegable
     content.style.maxHeight = null;
     icon.textContent = '+';
   } else {
     // Abrir el desplegable
-    content.style.maxHeight = content.scrollHeight + "px";
+    content.style.maxHeight = Math.min(content.scrollHeight, 300) + "px"; // Limitar altura máxima
     icon.textContent = '-';
+
+    // Asegurar que el dropdown no se salga de la ventana
+    const dropdown = document.querySelector('.inline-dropdown');
+    const rect = dropdown.getBoundingClientRect();
+    content = document.getElementById('dropdown-content');
+
+    // Si está muy cerca del borde derecho, alinear a la derecha
+    if (rect.right + content.offsetWidth > window.innerWidth) {
+      content.style.left = 'auto';
+      content.style.right = '0';
+    }
   }
 }
 
@@ -628,10 +644,20 @@ function toggleDropdown() {
 document.addEventListener('click', function(event) {
   const dropdown = document.querySelector('.inline-dropdown');
   const content = document.getElementById('dropdown-content');
-  
+
   if (dropdown && !dropdown.contains(event.target) && content.style.maxHeight) {
     content.style.maxHeight = null;
     document.getElementById('dropdown-icon').textContent = '+';
+  }
+});
+
+// Asegurar que el dropdown se cierre al redimensionar la ventana
+window.addEventListener('resize', function() {
+  const content = document.getElementById('dropdown-content');
+  const icon = document.getElementById('dropdown-icon');
+  if (content && content.style.maxHeight) {
+    content.style.maxHeight = null;
+    if (icon) icon.textContent = '+';
   }
 });
 </script>
