@@ -169,20 +169,7 @@ def setHTML(mapa):
                 f.write(row1[-1])
             
             f.write("</div>")
-
         f.write("</div>")
-        
-        # Agregar estilos CSS básicos para los asientos bloqueados
-        f.write("""
-        <style>
-        .asiento-bloqueado {
-            background-color: #ccc !important;
-            color: #666 !important;
-            opacity: 0.5;
-        }
-        </style>
-        """)
-        
         f.write("</body></html>")
 
 def getGroups(cursor):

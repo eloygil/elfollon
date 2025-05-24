@@ -286,11 +286,12 @@ function isMasterHash($uid) {
 }
 
 function loadAllGroupsCSS() {
-  $cssPath = "css/groups/";
-  $groupFiles = glob($cssPath . "*-" . getRevision() . ".css");
+  $cssPath = "css/";
+  $groupFiles = glob($cssPath . "groups/*-" . getRevision() . ".css");
   foreach ($groupFiles as $file) {
     echo "<link href=\"" . $file . "\" rel=\"stylesheet\">";
   }
+  echo "<link href=\"" . $cssPath . "master.css\" rel=\"stylesheet\">";
 }
 
 function logWrongAttempt($conn, $hash, $reason) {

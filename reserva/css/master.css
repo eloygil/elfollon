@@ -1,0 +1,5 @@
+.asiento-bloqueado {
+  background-color: #ccc !important;
+  color: #666 !important;
+  opacity: 0.5;
+}
