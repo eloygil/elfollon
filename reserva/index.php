@@ -433,7 +433,7 @@ $gts = getGroupTableSeats($conn, $gid);
   <div id="groupJoinNotification" class="notification">
     <div class="notification-content">
       <strong>¡Te has unido al grupo número <?php echo $_SESSION["joined_group_id"]; ?>!</strong>
-      <div>Actualmente hay <?php echo $_SESSION["joined_group_size"]; ?> miembro<?php echo getPlural($_SESSION["joined_group_size"]); ?> en este grupo.</div>
+      <div>Actualmente hay <?php echo $_SESSION["joined_group_size"]+1; ?> miembro<?php echo getPlural($_SESSION["joined_group_size"]+1); ?> en este grupo.</div>
     </div>
     <button class="notification-close" onclick="closeNotification()">×</button>
   </div>
