@@ -352,7 +352,7 @@ $gts = getGroupTableSeats($conn, $gid);
 <?php if (isset($_SESSION["joined_group"]) && $_SESSION["joined_group"] === true): ?>
   <div id="groupJoinNotification" class="notification">
     <div class="notification-content">
-      <strong>¡Te has unido al grupo #<?php echo $_SESSION["joined_group_id"]; ?>!</strong>
+      <strong>¡Te has unido al grupo número <?php echo $_SESSION["joined_group_id"]; ?>!</strong>
       <div>Actualmente hay <?php echo $_SESSION["joined_group_size"]; ?> miembro<?php echo getPlural($_SESSION["joined_group_size"]); ?> en este grupo.</div>
     </div>
     <button class="notification-close" onclick="closeNotification()">×</button>
@@ -459,7 +459,7 @@ if ((isset($_GET['crear'])) && (!isFrozen())) {
 if ($gid && !$isMaster) {
   echo "<div class='info-row'>";
   echo "<span class='info-label'>Grupo:</span>";
-  echo "<span class='info-value'>#" . $gnum . "</span>";
+  echo "<span class='info-value'>Nº " . $gnum . "</span>";
 
   // Solo muestra la lista expandible si hay más de un miembro
   if (getGroupSize($conn, $gid) > 1) {
@@ -588,7 +588,7 @@ if ($gid && !isFrozen() && !$isMaster) {
 <?php if ($nmm == 1) { ?>
   <p>Atención: Eres <b>el único miembro</b> de este grupo.</p>
 <?php } ?>
-  <p>Puedes invitar al <b>GRUPO #<?php echo $gnum; ?></b> a otros:</p>
+  <p>Puedes invitar al <b>GRUPO Nº <?php echo $gnum; ?></b> a otros:</p>
 
   <div class="button-container">
     <div id="TextoACopiar" hidden><?php echo $url; ?></div>
