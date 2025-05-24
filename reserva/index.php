@@ -586,10 +586,12 @@ if ($gid && !isFrozen() && !$isMaster) {
   $url = $BASE_URL . "/?unirse=" . $gid;
   ?>
   <div class="divider"></div>
+  <p>
 <?php if ($nmm == 1) { ?>
-  <p>Atención: Eres <b>el único miembro</b> de este grupo.</p>
+  &#9888;&#65039; Eres <b>el único miembro</b> de este grupo. 
 <?php } ?>
-  <p>Puedes invitar al <b>GRUPO Nº <?php echo $gnum; ?></b> a otros:</p>
+  Puedes invitar al <b>GRUPO Nº <?php echo $gnum; ?></b> a otros:
+  </p>
 
   <div class="button-container">
     <div id="TextoACopiar" hidden><?php echo $url; ?></div>
