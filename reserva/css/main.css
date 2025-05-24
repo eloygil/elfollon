@@ -207,6 +207,7 @@ body {
 }
 
 .mesa-container {
+  margin: 0 auto;
   position: relative;
   display: flex;
   flex-wrap: nowrap;
