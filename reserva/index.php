@@ -131,7 +131,86 @@ function getAssignedGroup($conn) {
   return NULL;
 }
 
-function getGroupMembers($conn, $gid) {
+function abbreviateName($fullName, $maxLength = 22) {
+    // Si ya es lo suficientemente corto, devolverlo tal como está
+    if (strlen($fullName) <= $maxLength) {
+        return $fullName;
+    }
+
+    // Extraer el número y el resto del nombre
+    if (!preg_match('/^(#\d+)\s+(.+)$/', $fullName, $matches)) {
+        // Si no coincide con el patrón esperado, truncar directamente
+        return substr($fullName, 0, $maxLength - 3) . '...';
+    }
+
+    $number = $matches[1]; // #123
+    $namepart = $matches[2]; // Nombre y apellidos
+
+    // Dividir el nombre en palabras
+    $words = explode(' ', $namepart);
+
+    if (count($words) < 2) {
+        // Solo hay una palabra (nombre), truncar si es necesario
+        $result = $number . ' ' . $words[0];
+        if (strlen($result) > $maxLength) {
+            return $number . ' ' . substr($words[0], 0, $maxLength - strlen($number) - 4) . '...';
+        }
+        return $result;
+    }
+
+    // Tomar el primer nombre completo
+    $firstName = $words[0];
+    $baseLength = strlen($number . ' ' . $firstName . ' '); // "#123 Nombre "
+
+    // Espacio disponible para apellidos
+    $availableSpace = $maxLength - $baseLength;
+
+    if ($availableSpace <= 0) {
+        // El número y el nombre ya son demasiado largos
+        return $number . ' ' . substr($firstName, 0, $maxLength - strlen($number) - 4) . '...';
+    }
+
+    // Procesar apellidos
+    $surnames = array_slice($words, 1);
+    $abbreviatedSurnames = [];
+    $usedSpace = 0;
+
+    foreach ($surnames as $surname) {
+        $surnameLength = strlen($surname);
+
+        // Si podemos añadir el apellido completo
+        if ($usedSpace + $surnameLength + (count($abbreviatedSurnames) > 0 ? 1 : 0) <= $availableSpace) {
+            $abbreviatedSurnames[] = $surname;
+            $usedSpace += $surnameLength + (count($abbreviatedSurnames) > 1 ? 1 : 0);
+        } else {
+            // Intentar abreviar este apellido
+            $spaceLeft = $availableSpace - $usedSpace - (count($abbreviatedSurnames) > 0 ? 1 : 0);
+
+            if ($spaceLeft >= 2) { // Al menos "X." o "XX"
+                if ($spaceLeft >= 3) {
+                    // Espacio para inicial y punto
+                    $abbreviatedSurnames[] = substr($surname, 0, 1) . '.';
+                } else {
+                    // Solo espacio para inicial
+                    $abbreviatedSurnames[] = substr($surname, 0, 1);
+                }
+                break; // No intentar más apellidos
+            } else {
+                // No hay espacio ni para una inicial
+                break;
+            }
+        }
+    }
+
+    // Construir el resultado final
+    $result = $number . ' ' . $firstName;
+    if (!empty($abbreviatedSurnames)) {
+        $result .= ' ' . implode(' ', $abbreviatedSurnames);
+    }
+    return $result;
+}
+
+function getGroupMembers($conn, $gid, $maxNameLength = 22) {
   if (!$gid) { return []; };
   $stmt = $conn->prepare("SELECT label FROM invitaciones WHERE gid=?");
   $stmt->bind_param("s", $gid);
@@ -139,7 +218,7 @@ function getGroupMembers($conn, $gid) {
   $result = $stmt->get_result();
   $members = [];
   while ($row = $result->fetch_assoc()) {
-    $members[] = $row['label'];
+    $members[] = abbreviateName($row['label'], $maxNameLength);
   }
   sort($members);
   return $members;
@@ -342,7 +421,7 @@ if ($isMaster && isFrozen()) {
 }
 
 $gnum = getGroupNumber($conn, $gid);
-$gmem = getGroupMembers($conn, $gid);
+$gmem = getGroupMembers($conn, $gid, 25);
 $nmm = getGroupSize($conn, $gid);
 $gt = getGroupTable($conn, $gid);
 $gts = getGroupTableSeats($conn, $gid);
