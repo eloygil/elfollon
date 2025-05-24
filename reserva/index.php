@@ -543,9 +543,10 @@ if ($gid && !$isMaster) {
 
   // Solo muestra la lista expandible si hay más de un miembro
   if (getGroupSize($conn, $gid) > 1) {
+    $scroll_text = "Mostrar " . $nmm . " miembros";
     echo "<div class='members-expandable'>
             <button class='toggle-button' id='toggleMembersList' aria-expanded='false'>
-	      <span>Ver " . $nmm . " miembros</span>
+	      <span>" . $scroll_text . "</span>
               <span class='toggle-icon'>+</span>
             </button>
 
@@ -734,12 +735,12 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleButton.setAttribute('aria-expanded', 'false');
         container.classList.remove('expanded');
         toggleButton.querySelector('.toggle-icon').textContent = '+';
-	toggleButton.querySelector('span:first-child').textContent = 'Ver <?php echo $nmm; ?> miembros';
+	toggleButton.querySelector('span:first-child').textContent = '<?php echo $scroll_text; ?>';
       } else {
         toggleButton.setAttribute('aria-expanded', 'true');
         container.classList.add('expanded');
         toggleButton.querySelector('.toggle-icon').textContent = '+';
-        toggleButton.querySelector('span:first-child').textContent = 'Ocultar';
+        toggleButton.querySelector('span:first-child').textContent = 'Ocultar miembros';
       }
     });
     
@@ -752,7 +753,7 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleButton.setAttribute('aria-expanded', 'false');
         container.classList.remove('expanded');
         toggleButton.querySelector('.toggle-icon').textContent = '+';
-        toggleButton.querySelector('span:first-child').textContent = 'Ver <?php echo $nmm; ?> miembros';
+	toggleButton.querySelector('span:first-child').textContent = '<?php echo $scroll_text; ?>';
       }
     });
   }
