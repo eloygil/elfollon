@@ -370,7 +370,7 @@ function loadAllGroupsCSS() {
   foreach ($groupFiles as $file) {
     echo "<link href=\"" . $file . "\" rel=\"stylesheet\">";
   }
-  echo "<link href=\"" . $cssPath . "master.css\" rel=\"stylesheet\">";
+  echo "<link href=\"" . $cssPath . "vip.css\" rel=\"stylesheet\">";
 }
 
 function logWrongAttempt($conn, $hash, $reason) {
