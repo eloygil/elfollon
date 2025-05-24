@@ -13,15 +13,20 @@ SITE_PATH = '../reserva'
 REVISION = datetime.now().strftime("%Y%m%d%H%M%S")
 
 class Table:
-    def __init__(self, n_seats):
+    def __init__(self, n_seats, blocked_seats=0):
         self._size = n_seats
+        self._blocked = blocked_seats if blocked_seats is not None else 0
         self._used = 0
 
     def getAvailable(self):
-        return self._size - self._used
+        # Los asientos disponibles son el total menos los usados y menos los bloqueados
+        return self._size - self._used - self._blocked
 
     def getSize(self):
         return self._size
+
+    def getBlocked(self):
+        return self._blocked
 
     def setReservation(self, number):
         seat = self._used + 1
@@ -76,14 +81,19 @@ def getGreenlight():
 def getMap(n_std_tables=5, std_size=100):
     """
     Obtiene la configuración de mesas desde la base de datos.
-    Consulta la tabla reserva_mesas para obtener el ID de mesa y el número de asientos disponibles.
+    Consulta la tabla reserva_mesas para obtener el ID de mesa, el número de asientos disponibles
+    y el número de asientos bloqueados.
     Retorna un diccionario donde la clave es el ID de la mesa y el valor es un objeto Table.
     """
     mapa = {}
     try:
-        cursor.execute("SELECT id, n_asientos FROM `reserva_mesas` ORDER BY id ASC")
-        for mesa_id, asientos in cursor.fetchall():
-            mapa[mesa_id] = Table(asientos)
+        # Modificada la consulta para incluir la columna de asientos bloqueados
+        # COALESCE maneja el caso cuando el valor es NULL (lo convierte a 0)
+        cursor.execute("SELECT id, n_asientos, COALESCE(asientos_bloqueados, 0) FROM `reserva_mesas` ORDER BY id ASC")
+        
+        for mesa_id, asientos, bloqueados in cursor.fetchall():
+            mapa[mesa_id] = Table(asientos, bloqueados)
+            debug_print(f"Mesa {mesa_id}: {asientos} asientos totales, {bloqueados} bloqueados, {asientos - bloqueados} disponibles")
 
         if not mapa:
             debug_print("No se encontraron mesas en la base de datos. Usando configuración por defecto.", "WARNING")
@@ -100,6 +110,7 @@ def getAllocation(cursor, mapa, gid, n_seats):
         if t.getAvailable() >= n_seats:
             seat = t.setReservation(n_seats)
             cursor.execute("UPDATE `grupos` SET mesa=%s, asiento=%s WHERE gid = %s", (tid, seat, gid))
+            debug_print(f"Grupo {gid} ({n_seats} personas) asignado a mesa {tid}, asientos {seat}-{seat+n_seats-1}")
             return tid, seat
 
 def cleanCSSDirectory():
@@ -137,15 +148,42 @@ def setHTML(mapa):
         for n, table in mapa.items():
             f.write(f"<div class='mesa' id='mesa{n}'>")
             f.write(f"<div class='mesa-title'>Mesa {n}</div>")
-            seats = [f"<div class='asiento m{n}a{s}'>{s}</div>" for s in range(1, table.getSize()+1)]
+            
+            # Generar todos los asientos, incluyendo los bloqueados
+            total_seats = table.getSize()
+            blocked_seats = table.getBlocked()
+            
+            seats = []
+            for s in range(1, total_seats + 1):
+                # Los últimos M asientos estarán bloqueados
+                if s > total_seats - blocked_seats:
+                    seats.append(f"<div class='asiento asiento-bloqueado m{n}a{s}'>{s}</div>")
+                else:
+                    seats.append(f"<div class='asiento m{n}a{s}'>{s}</div>")
+            
+            # Organizar en dos filas como antes
             row1, row2 = seats[::2], seats[1::2]
             for seat1, seat2 in zip(row1, row2):
                 f.write(seat1 + seat2)
             if len(row1) > len(row2):
                 f.write(row1[-1])
+            
             f.write("</div>")
 
-        f.write("</div></body></html>")
+        f.write("</div>")
+        
+        # Agregar estilos CSS básicos para los asientos bloqueados
+        f.write("""
+        <style>
+        .asiento-bloqueado {
+            background-color: #ccc !important;
+            color: #666 !important;
+            opacity: 0.5;
+        }
+        </style>
+        """)
+        
+        f.write("</body></html>")
 
 def getGroups(cursor):
     # Only groups with 2 or more members are considered as valid
@@ -166,11 +204,22 @@ mapa = getMap(3, 40)
 # Clean the CSS directory before generating new files
 cleanCSSDirectory()
 
+# Mostrar resumen de mesas disponibles
+debug_print("=== RESUMEN DE MESAS ===")
+for tid, table in mapa.items():
+    debug_print(f"Mesa {tid}: {table.getSize()} asientos totales, {table.getBlocked()} bloqueados, {table.getAvailable()} disponibles")
+
 # Allocate seats for all groups
 groups = getGroups(cursor)
+debug_print(f"=== ASIGNANDO {len(groups)} GRUPOS ===")
+
 for idx, (gid, n) in enumerate(groups):
-    tid, first_seat = getAllocation(cursor, mapa, gid, n)
-    setGroupCSS(gid, tid, first_seat, n)
+    result = getAllocation(cursor, mapa, gid, n)
+    if result:
+        tid, first_seat = result
+        setGroupCSS(gid, tid, first_seat, n)
+    else:
+        debug_print(f"No se pudo asignar el grupo {gid} ({n} personas) - Sin espacio disponible", "WARNING")
 
 setRevision(cursor)
 setHTML(mapa)
@@ -179,3 +228,4 @@ if force:
     cursor.execute("UPDATE `reserva_config` SET fecha = NULL WHERE 1")
 
 conn.commit()
+debug_print("=== PROCESO COMPLETADO ===")
