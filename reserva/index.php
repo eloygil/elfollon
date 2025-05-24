@@ -459,13 +459,13 @@ if ((isset($_GET['crear'])) && (!isFrozen())) {
 if ($gid && !$isMaster) {
   echo "<div class='info-row'>";
   echo "<span class='info-label'>Grupo:</span>";
-  echo "<span class='info-value'>#" . $gnum . " (" . $nmm . " miembro" . getPlural($nmm) . ")</span>";
+  echo "<span class='info-value'>#" . $gnum . "</span>";
 
   // Solo muestra la lista expandible si hay más de un miembro
   if (getGroupSize($conn, $gid) > 1) {
     echo "<div class='members-expandable'>
             <button class='toggle-button' id='toggleMembersList' aria-expanded='false'>
-              <span>Ver miembros</span>
+	      <span>Ver " . $nmm . " miembros</span>
               <span class='toggle-icon'>+</span>
             </button>
 
@@ -652,7 +652,7 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleButton.setAttribute('aria-expanded', 'false');
         container.classList.remove('expanded');
         toggleButton.querySelector('.toggle-icon').textContent = '+';
-        toggleButton.querySelector('span:first-child').textContent = 'Ver miembros';
+	toggleButton.querySelector('span:first-child').textContent = 'Ver <?php echo $nmm; ?> miembros';
       } else {
         toggleButton.setAttribute('aria-expanded', 'true');
         container.classList.add('expanded');
@@ -670,7 +670,7 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleButton.setAttribute('aria-expanded', 'false');
         container.classList.remove('expanded');
         toggleButton.querySelector('.toggle-icon').textContent = '+';
-        toggleButton.querySelector('span:first-child').textContent = 'Ver miembros';
+        toggleButton.querySelector('span:first-child').textContent = 'Ver <?php echo $nmm; ?> miembros';
       }
     });
   }
